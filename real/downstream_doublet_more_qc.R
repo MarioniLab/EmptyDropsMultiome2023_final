@@ -34,6 +34,7 @@ markers_tsv_in_atac <- file.path(downpath, "markers_in_atac.tsv")
 srat_vale_clean <- file.path(downpath, "srat_vale_clean.rds")
 srat_atac_vale_clean <- file.path(downpath, "srat_atac_vale_clean.rds")
 
+
 vale <- readRDS( paste0("data/output/realdata/", old_date, "/", sample, "/srat_", sample, ".rds") )
 eD.out_multi <- read.table( paste0("data/output/realdata/", old_date, "/", sample,"/",sample, "_eD_multiome.tsv"), sep="\t", header=T) 
 
@@ -97,12 +98,12 @@ vale_clean$sub.cluster[vale_clean$sub.cluster=="9_1"] = "9"
 
 # DimPlot
 print(DimPlot(vale_clean, label=T, group.by = "sub.cluster"))
-print(VlnPlot(vale_clean,group.by = "sub.cluster", features="percent.mt")+ stat_summary(fun.y = median, geom='point', size = 10, colour = "blue") )
-print(VlnPlot(vale_clean,group.by = "sub.cluster", features="percent.ribo")+ stat_summary(fun.y = median, geom='point', size = 10, colour = "blue"))
-print(VlnPlot(vale_clean,group.by = "sub.cluster", features="nFeature_RNA")+ stat_summary(fun.y = median, geom='point', size = 10, colour = "blue"))
-print(VlnPlot(vale_clean,group.by = "sub.cluster", features="nCount_RNA")+ stat_summary(fun.y = median, geom='point', size = 10, colour = "blue"))
-print(VlnPlot(vale_clean,group.by = "sub.cluster", features="nCount_ATAC")+ stat_summary(fun.y = median, geom='point', size = 10, colour = "blue"))
-print(VlnPlot(vale_clean,group.by = "sub.cluster", features="nFeature_ATAC")+ stat_summary(fun.y = median, geom='point', size = 10, colour = "blue"))
+print(VlnPlot(vale_clean,group.by = "sub.cluster", features="percent.mt")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue") )
+print(VlnPlot(vale_clean,group.by = "sub.cluster", features="percent.ribo")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+print(VlnPlot(vale_clean,group.by = "sub.cluster", features="nFeature_RNA")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+print(VlnPlot(vale_clean,group.by = "sub.cluster", features="nCount_RNA")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+print(VlnPlot(vale_clean,group.by = "sub.cluster", features="nCount_ATAC")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+print(VlnPlot(vale_clean,group.by = "sub.cluster", features="nFeature_ATAC")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
 
 # FRiP plot per cluster
 df_FRiP <- data.frame("frip"=vale_clean$FRiP, "cluster"=vale_clean$sub.cluster)
