@@ -1,5 +1,5 @@
-setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
-library(eDv3)
+#setwd("~/analysis/EmptyDropsMultiome2023_final")
+library(EmptyDropsMultiome)
 library(DropletUtils)
 library(Matrix)
 library(rstudioapi)
@@ -66,21 +66,14 @@ for (fname in ALLFILES) {
       
       for (it in 1:1) { 
         print(it)
-        #out <- SIMFUN_multiome(raw.mat, raw.mat_atac, group1=g1, group2=g2, down.rate=0.02)
-        # for gastr and pbmc down.rate=0.02 (for atac; and twice this for rna)
-        #out <- SIMFUN_multiome_v2(raw.mat, raw.mat_atac, group1=g1, group2=g2, down.rate=0.02)
         if (stub=="valentina_FCA_GND10288180"){
-          #out <- SIMFUN_multiome_v2(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.001, down.rate.rna=0.2, down.rate.atac=0.2)  #0.1
-          #out <- SIMFUN_multiome_v3(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.001, down.rate.rna=0.2, down.rate.atac=0.2, lower_atac=60, lower_rna=110)  
-          #out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.7, down.rate.atac=0.7)  
           out <- SIMFUN_multiome_no_scrambling_vale(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.05, down.rate.atac=0.05)  
         }else if(stub=="valentina_FCA_GND10288177"){
           out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.1, down.rate.atac=0.1)  
           }else{
-          #out <- SIMFUN_multiome_v2(raw.mat, raw.mat_atac, group1=g1, group2=g2, down.rate.rna=0.04, down.rate.atac=0.02)
-          
+            out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.04, down.rate.atac=0.02)  
             #out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.05, down.rate.atac=0.05)  
-            out <- SIMFUN_multiome_no_scrambling_bigger_empties(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.05, down.rate.atac=0.05)  
+            #out <- SIMFUN_multiome_no_scrambling_bigger_empties(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.05, down.rate.atac=0.05)  
           }
         dev.off()
         
