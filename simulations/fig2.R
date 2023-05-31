@@ -1,5 +1,5 @@
-setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
-library(eDv2)
+setwd("~/analysis/EmptyDropsMultiome2023_final")
+library(EmptyDropsMultiome)
 library(DropletUtils)
 library(Matrix)
 library(rstudioapi)
@@ -9,12 +9,12 @@ library(tidyverse)
 source("simulations/fcn_for_sim.R")
 # library("optparse")
 library(Seurat)
-library(Signac)
+#library(Signac)
 library(stringr)
 
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/figures/", current_date)
-old_date = "20230329"
+old_date = "20230528"
 
 dir.create(opath,recursive=TRUE)
 
