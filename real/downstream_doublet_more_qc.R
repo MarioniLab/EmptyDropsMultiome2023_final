@@ -1,23 +1,23 @@
-setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
+#setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
 library(scDblFinder)
 library(Seurat)
 library(Signac)
 library(scater)
-library("optparse")
+# library("optparse")
 library(dplyr)
 library(ggridges)
 library(eulerr)
-source("real/clustering_comparison.R")
+#source("real/clustering_comparison.R")
 source("simulations/fcn_for_sim.R")
 
 # read date from user input
-option_list = list(
-  make_option(c("-d", "--date"), type="character", default=NULL,
-              help="date of creation of seurat object aka location of directory", metavar="character")
-);
-opt_parser = OptionParser(option_list=option_list);
-opt = parse_args(opt_parser);
-old_date <- "20230517"   #"20230329" #opt$date
+# option_list = list(
+#   make_option(c("-d", "--date"), type="character", default=NULL,
+#               help="date of creation of seurat object aka location of directory", metavar="character")
+# );
+# opt_parser = OptionParser(option_list=option_list);
+# opt = parse_args(opt_parser);
+old_date <-  "20230531"  #"20230517"   #"20230329" #opt$date
 samples <- c("valentina_8176", "valentina_8177")  #, "valentina_8177")
 
 for (sample in samples){
@@ -52,7 +52,9 @@ print(VlnPlot(vale, features=c("scDblFinder.score"), y.max = 0.10)+stat_summary(
 # remove clusters and doublets
 if (sample=="valentina_8176"){
   #bad_clusters = c("3", "21")
-  bad_clusters = c("3", "13", "20", "21", "22")
+#   bad_clusters = c("3", "13", "20", "21", "22")
+  # at sanger cluster use
+  bad_clusters = c("3", "16", "20", "21", "22")
 } else if (sample=="valentina_8177") {
   #bad_clusters = c("7", "17")
   #bad_clusters = c("7", "12", "17")
@@ -289,8 +291,8 @@ barplot(Values, main = "eD vs cR by cluster", names.arg = seq(0, max(as.integer(
 legend("topleft", bg="white", lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1),
        legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
 
-UMAP_comparison(srat_atac, vale_clean)
-UMAP_comparison(vale_clean, srat_atac)
+#UMAP_comparison(srat_atac, vale_clean)
+#UMAP_comparison(vale_clean, srat_atac)
 
 saveRDS(vale_clean, srat_vale_clean)
 saveRDS(srat_atac, srat_atac_vale_clean)
