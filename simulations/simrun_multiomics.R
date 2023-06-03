@@ -312,29 +312,39 @@ for (fname in ALLFILES) {
           hard_cut <- log10(eD.out_multi$Total_RNA + 1) - eD.out_multi@metadata["k_means_slope"][[1]] * log10(eD.out_multi$Total_chromatin+1)
           
           emp.roc <- createRocPts(log(eD.out_multi$FDR_multi+1e-3), identities)
+          emp_rna.roc <- createRocPts(log(eD.out_multi$FDR_RNA+1e-3), identities)
           lib.roc <- createRocPts(-hard_cut, identities)
           # eDrna.roc <- createRocPts(log(eD.out_multi$FDR_RNA+1e-3), identities)
           emp.fdr <- emp.roc[,"0"]/rowSums(emp.roc)
           emp.tp1 <- emp.roc[,"1"]/g1
-          emp.tp2 <- emp.roc[,"2"]/g2
+          emp.tp2 <- emp.roc[,"2"]/g2          
+          emp_rna.fdr <- emp_rna.roc[,"0"]/rowSums(emp_rna.roc)
+          emp_rna.tp1 <- emp_rna.roc[,"1"]/g1
+          emp_rna.tp2 <- emp_rna.roc[,"2"]/g2
           lib.fdr <- lib.roc[,"0"]/rowSums(lib.roc)
           lib.tp1 <- lib.roc[,"1"]/g1
           lib.tp2 <- lib.roc[,"2"]/g2
 
           emp.col <- colors["eD-multiome"]
+          emp_rna.col <- "green"
           lib.col <- "grey50"
 
           pdf(file.path(ppath, paste0(stub, "_eD_multiome_", "_", g1, "_", g2, "-roc.pdf")), width=10, height=6)
           par(mar=c(5.1, 4.1, 4.1, 14.1))
           plot(c(0, emp.fdr), c(0, emp.tp1), xlim=c(0, 0.025), ylim=c(0, 1), type="l", col=emp.col, lwd=3, main=stub,
                xlab="Observed FDR", ylab="Recall", cex.axis=1.2, cex.lab=1.4, cex.main=1.4)
+          lines(c(0, emp_rna.fdr), c(0, emp_rna.tp1), col=emp_rna.col, lwd=3) 
           lines(c(0, lib.fdr), c(0, lib.tp1), col=lib.col,lwd=3)
+            
           lines(c(0, emp.fdr), c(0, emp.tp2), col=emp.col, lwd=3, lty=3)  #lty=2
+          lines(c(0, emp_rna.fdr), c(0, emp_rna.tp2), col=emp_rna.col, lwd=3, lty=3) 
           lines(c(0, lib.fdr), c(0, lib.tp2), col=lib.col, lwd=3, lty=3)
 
           par(xpd=TRUE)
-          legend(0.027, 1, lwd=3, col=rep(c(emp.col, lib.col), each=2), lty=rep(1:3, 2),
-                 legend=c("EmptyDrops_multiome (large)", "EmptyDrops_multiome (small)", "hard cutoff (large)", "hard cutoff (small)"))
+          legend(0.027, 1, lwd=3, col=rep(c(emp.col, emp_rna.col, lib.col), each=2), lty=rep(c(1,3), 3),
+                 legend=c("EmptyDrops_multiome (large)", "EmptyDrops_multiome (small)",
+                          "EmptyDrops_RNA (large)", "EmptyDrops_RNA (small)",
+                          "hard cutoff (large)", "hard cutoff (small)"))
           dev.off()
         }
 
