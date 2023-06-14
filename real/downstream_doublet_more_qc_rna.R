@@ -16,7 +16,7 @@ source("simulations/fcn_for_sim.R")
 # );
 # opt_parser = OptionParser(option_list=option_list);
 # opt = parse_args(opt_parser);
-old_date <-  "20230608"  #"20230517"   #"20230329" #opt$date
+old_date <-  "20230614"  #"20230517"   #"20230329" #opt$date
 samples <- c("valentina_8176", "valentina_8177")  #, "valentina_8177")
 
 for (sample in samples){
@@ -99,7 +99,7 @@ vale_clean$sub.cluster[vale_clean$sub.cluster=="9_0"] = "9"
 vale_clean$sub.cluster[vale_clean$sub.cluster=="9_1"] = "9"
 
 
-# DimPlot
+# QC plots
 print(DimPlot(vale_clean, label=T, group.by = "sub.cluster"))
 print(VlnPlot(vale_clean,group.by = "sub.cluster", features="percent.mt")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue") )
 print(VlnPlot(vale_clean,group.by = "sub.cluster", features="percent.ribo")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
@@ -116,25 +116,29 @@ print(ggplot(df_FRiP, aes(x = frip, y = cluster, height = stat(density))) +
         theme_ridges(grid = FALSE, center_axis_labels = TRUE)+
         geom_vline(xintercept = max_frip_of_excluded))
 
-# germ cells
+# gene marker dotplot
 genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 = c("DAZL", "IFITM1", "NANOG", "NANOS3", "POU5F1", "DDX4", "MAEL", "ZGLP1", "STRA8")
-genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia = c( "MEIOC", "SYCP1", "FIGLA", "LHX8", "NOBOX", "ZP3", "GDF9", "SPOCD1", "MORC1")
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")) )
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")))
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 ) )
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia ))
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = c("DCC", "ZP3") ))
-
-# developing ovary
-genes_germcells_to_mesGATA4 = c( "DAZL", "UPK3B", "GATA4", "LHX9", "NR5A1", "WNT6", "IRX3", "FOXL2", "ARX")
-genes_mesGATA2_to_neural = c( "TCF21", "PDGFRA", "DCV", "GATA2", "NR2F1", "PDGFRB")
-genes_mesGATA2_to_neural2 = c( "MYH11", "PTPRC", "CDH5", "PAX8", "EPCAM", "HBA1", "ASCL1")
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_germcells_to_mesGATA4 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")) )
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_mesGATA2_to_neural )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_mesGATA2_to_neural2 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_germcells_to_mesGATA4 ) )
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_mesGATA2_to_neural ) )
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_mesGATA2_to_neural2 ) )
+genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia = c( "MEIOC", "SYCP1", "FIGLA", "LHX8", "NOBOX", "GDF9", "ZP3", "DCC")
+DotPlot(vale_clean, group.by = sub.cluster, dot.scale=3, features = c(genes_PGC_FGC_FGCmitotic_oogoniaSTRA8, genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia), 
+                         assay = "SCT")+
+    theme(
+      # Hide panel borders and remove grid lines
+      panel.border = element_blank(),
+      panel.background = element_rect("white"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      legend.text=element_text(size=text_size),
+      legend.title = element_text(size=text_size),
+      # Change axis line
+      axis.line = element_line(colour = "black"),
+      axis.text=element_text(size=text_size),
+      axis.title=element_text(size=text_size),
+      axis.text.x = element_text(size=text_size, angle=45, vjust=.8, hjust=0.8)
+    ) + 
+    ylab("clusters")+
+    ggplot2::ggtitle("")+
+    guides(colour = guide_legend(override.aes = list(size=5)))    
+    
 
 # UMAP with eD vs rna
 print(DimPlot(vale_clean, group.by = "comparison", sizes.highlight=0.1, reduction = "umap", label=T, cols = c("grey", "blue", "red")) )  
