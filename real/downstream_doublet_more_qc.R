@@ -17,7 +17,7 @@ source("simulations/fcn_for_sim.R")
 # );
 # opt_parser = OptionParser(option_list=option_list);
 # opt = parse_args(opt_parser);
-old_date <-  "20230531"  #"20230517"   #"20230329" #opt$date
+old_date <-  "20230608"  #"20230517"   #"20230329" #opt$date
 samples <- c("valentina_8176", "valentina_8177")  #, "valentina_8177")
 
 for (sample in samples){
@@ -33,6 +33,7 @@ markers_tsv <- file.path(downpath, "markers.tsv")
 markers_tsv_in_atac <- file.path(downpath, "markers_in_atac.tsv")
 srat_vale_clean <- file.path(downpath, "srat_vale_clean.rds")
 srat_atac_vale_clean <- file.path(downpath, "srat_atac_vale_clean.rds")
+venns_per_cl <- file.path(downpath, "venns_per_cl.csv")  
 
 
 vale <- readRDS( paste0("data/output/realdata/", old_date, "/", sample, "/srat_", sample, ".rds") )
@@ -76,7 +77,7 @@ vale_clean <- SCTransform(vale_clean)
 vale_clean <- RunPCA(vale_clean, seed.use=42, features = VariableFeatures(object = vale_clean))
 print(ElbowPlot(vale_clean, ndims = 50)     )
 vale_clean <- FindNeighbors(vale_clean, dims = 1:50)
-vale_clean <- FindClusters(vale_clean, resolution = 1, random.seed = 0)
+vale_clean <- FindClusters(vale_clean, resolution = 1, random.seed = 0)   
 vale_clean <- RunUMAP(vale_clean, dims = 1:50, seed.use = 42)
 
 plot( vale_clean$seurat_clusters[!vale_clean$k_means], xlab="cluster", main="after qc: cells below k_means" )
@@ -199,7 +200,7 @@ rownames(venn_df) <- c("total cells",
                        "% of cR cells",
                        "% of common cells"
 )
-#write.table(venn_df, venns_per_cl, sep = '\t', row.names = T, col.names = T, quote = F)
+write.table(venn_df, venns_per_cl, sep = '\t', row.names = T, col.names = T, quote = F)
 eD_tpr_only <- unname(unlist(venn_df["% of eD cells",])) - unname(unlist(venn_df["% of common cells",]) )
 cR_tpr_only <- unname(unlist(venn_df["% of cR cells",])) - unname(unlist(venn_df["% of common cells",]) )
 common <- unname(unlist(venn_df["% of common cells",]))
@@ -212,90 +213,90 @@ legend("topleft", bg="white", lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,
        legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
 
 
-# atac clustering
-srat_atac <- vale_clean
-#cl4rna = colnames(vale_clean)[vale_clean$seurat_clusters=="4"]
-DefaultAssay(srat_atac) <- "ATAC"
-srat_atac <- RunTFIDF(srat_atac)
-srat_atac <- FindTopFeatures(srat_atac, min.cutoff = 'q0')
-srat_atac <- RunSVD(srat_atac)
-ElbowPlot(srat_atac, n=40)
-DepthCor(srat_atac, n=33)
-srat_atac <- RunUMAP(object = srat_atac, reduction = 'lsi', dims = 2:30, seed.use = 6)
-srat_atac <- FindNeighbors(object = srat_atac, reduction = 'lsi', dims = 2:30, random.seed = 0)
-srat_atac <- FindClusters(object = srat_atac, verbose = FALSE, algorithm = 3, resolution = 1)
-DefaultAssay(srat_atac) <- "SCT"
-print(DimPlot(object = srat_atac, reduction = 'umap', label = TRUE)+ggtitle("clustering based on atac")) #| DimPlot(object = srat_combined, label = TRUE)+ggtitle("clustering based on rna")  
-print(FeaturePlot(srat_atac, reduction = 'umap',features="nCount_RNA")& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"),limits = c(0, 30000)) )
-print(FeaturePlot(srat_atac, reduction = 'umap',order=T, features=c("DCC", "ZP3") )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
-print(DimPlot(srat_atac,group.by = "comparison", sizes.highlight=0.1, reduction = "umap", label=T, cols = c("grey", "blue", "red")) )  #+scale_color_manual(labels = c( "eD", "both", "cR",), values = c("blue", "red"))    )
-print(DimPlot(srat_atac,group.by = "comparison", sizes.highlight=0.1, reduction = "umap", label=F, cols = c("grey", "blue", "red")) )  #+scale_color_manual(labels = c( "eD", "both", "cR",), values = c("blue", "red"))    )
-# in ATAC: germ cells
-print(DimPlot(srat_atac, reduction = 'umap',label=T) | FeaturePlot(srat_atac, reduction = 'umap',order=T, features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
-print(DimPlot(srat_atac, reduction = 'umap',label=T) | FeaturePlot(srat_atac, order=T, reduction = 'umap',features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
-print(VlnPlot(srat_atac,features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 )  )
-print(VlnPlot(srat_atac,features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia ) )
-print(VlnPlot(srat_atac, features = c("DCC", "ZP3") )  )
-# in ATAC: developing ovary
-print(DimPlot(srat_atac, reduction = 'umap',label=T) | FeaturePlot(srat_atac, reduction = 'umap',order=T, features = genes_germcells_to_mesGATA4 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
-print(DimPlot(srat_atac, reduction = 'umap',label=T) | FeaturePlot(srat_atac, reduction = 'umap',order=T, features = genes_mesGATA2_to_neural )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))   )
-print(VlnPlot(srat_atac, features = genes_germcells_to_mesGATA4 )  )
-print(VlnPlot(srat_atac, features = genes_mesGATA2_to_neural )   )
-# in ATAC: qc
-print(VlnPlot(srat_atac, features="percent.mt")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue") )
-print(VlnPlot(srat_atac, features="percent.ribo")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
-print(VlnPlot(srat_atac, features="nFeature_RNA")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
-print(VlnPlot(srat_atac, features="nCount_RNA")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
-print(VlnPlot(srat_atac, features="nCount_ATAC")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
-print(VlnPlot(srat_atac, features="nFeature_ATAC")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+# # atac clustering
+# srat_atac <- vale_clean
+# #cl4rna = colnames(vale_clean)[vale_clean$seurat_clusters=="4"]
+# DefaultAssay(srat_atac) <- "ATAC"
+# srat_atac <- RunTFIDF(srat_atac)
+# srat_atac <- FindTopFeatures(srat_atac, min.cutoff = 'q0')
+# srat_atac <- RunSVD(srat_atac)
+# ElbowPlot(srat_atac, n=40)
+# DepthCor(srat_atac, n=33)
+# srat_atac <- RunUMAP(object = srat_atac, reduction = 'lsi', dims = 2:30, seed.use = 6)
+# srat_atac <- FindNeighbors(object = srat_atac, reduction = 'lsi', dims = 2:30, random.seed = 0)
+# srat_atac <- FindClusters(object = srat_atac, verbose = FALSE, algorithm = 3, resolution = 1)
+# DefaultAssay(srat_atac) <- "SCT"
+# print(DimPlot(object = srat_atac, reduction = 'umap', label = TRUE)+ggtitle("clustering based on atac")) #| DimPlot(object = srat_combined, label = TRUE)+ggtitle("clustering based on rna")  
+# print(FeaturePlot(srat_atac, reduction = 'umap',features="nCount_RNA")& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"),limits = c(0, 30000)) )
+# print(FeaturePlot(srat_atac, reduction = 'umap',order=T, features=c("DCC", "ZP3") )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
+# print(DimPlot(srat_atac,group.by = "comparison", sizes.highlight=0.1, reduction = "umap", label=T, cols = c("grey", "blue", "red")) )  #+scale_color_manual(labels = c( "eD", "both", "cR",), values = c("blue", "red"))    )
+# print(DimPlot(srat_atac,group.by = "comparison", sizes.highlight=0.1, reduction = "umap", label=F, cols = c("grey", "blue", "red")) )  #+scale_color_manual(labels = c( "eD", "both", "cR",), values = c("blue", "red"))    )
+# # in ATAC: germ cells
+# print(DimPlot(srat_atac, reduction = 'umap',label=T) | FeaturePlot(srat_atac, reduction = 'umap',order=T, features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
+# print(DimPlot(srat_atac, reduction = 'umap',label=T) | FeaturePlot(srat_atac, order=T, reduction = 'umap',features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
+# print(VlnPlot(srat_atac,features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 )  )
+# print(VlnPlot(srat_atac,features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia ) )
+# print(VlnPlot(srat_atac, features = c("DCC", "ZP3") )  )
+# # in ATAC: developing ovary
+# print(DimPlot(srat_atac, reduction = 'umap',label=T) | FeaturePlot(srat_atac, reduction = 'umap',order=T, features = genes_germcells_to_mesGATA4 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
+# print(DimPlot(srat_atac, reduction = 'umap',label=T) | FeaturePlot(srat_atac, reduction = 'umap',order=T, features = genes_mesGATA2_to_neural )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))   )
+# print(VlnPlot(srat_atac, features = genes_germcells_to_mesGATA4 )  )
+# print(VlnPlot(srat_atac, features = genes_mesGATA2_to_neural )   )
+# # in ATAC: qc
+# print(VlnPlot(srat_atac, features="percent.mt")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue") )
+# print(VlnPlot(srat_atac, features="percent.ribo")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+# print(VlnPlot(srat_atac, features="nFeature_RNA")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+# print(VlnPlot(srat_atac, features="nCount_RNA")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+# print(VlnPlot(srat_atac, features="nCount_ATAC")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
+# print(VlnPlot(srat_atac, features="nFeature_ATAC")+ stat_summary(fun.y = median, geom='point', size = 2, colour = "blue"))
 
-# calculate cR/eD venn diagram by *ATAC* cluster
-venn_df <- data.frame("0" = c(as.integer(sum(srat_atac$seurat_clusters=="0")),
-                              as.integer(sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% eD_cells)),
-                              as.integer(sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% cR_cells)),
-                              sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% cR_cells & colnames(srat_atac) %in% eD_cells),
-                              sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% eD_cells)/sum(srat_atac$seurat_clusters=="0"),
-                              sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% cR_cells)/sum(srat_atac$seurat_clusters=="0"),
-                              sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% cR_cells & colnames(srat_atac) %in% eD_cells)/sum(srat_atac$seurat_clusters=="0")
-))
-for ( cl in c(1:(max(as.integer(srat_atac$seurat_clusters))-1))   ){
-  char_cl = as.character(cl)
-  temp_df <- data.frame("new" = c(sum(srat_atac$seurat_clusters==char_cl),
-                                  sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% eD_cells),
-                                  sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% cR_cells),
-                                  sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% cR_cells & colnames(srat_atac) %in% eD_cells),
-                                  sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% eD_cells)/sum(srat_atac$seurat_clusters==char_cl),
-                                  sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% cR_cells)/sum(srat_atac$seurat_clusters==char_cl),
-                                  sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% cR_cells & colnames(srat_atac) %in% eD_cells)/sum(srat_atac$seurat_clusters==char_cl)
-  ))
-  venn_df <- cbind(venn_df, temp_df)
-}
-colnames(venn_df) <- as.character(c(0:(max(as.integer(srat_atac$seurat_clusters))-1) ))
-rownames(venn_df) <- c("total cells",
-                       "# of eD cells",
-                       "# of cR cells",
-                       "# of common cells",
-                       "% of eD cells",
-                       "% of cR cells",
-                       "% of common cells"
-)
-#write.table(venn_df, venns_per_ATAC_cl, sep = '\t', row.names = T, col.names = T, quote = F)
-eD_tpr_only <- unname(unlist(venn_df["% of eD cells",])) - unname(unlist(venn_df["% of common cells",]) )
-cR_tpr_only <- unname(unlist(venn_df["% of cR cells",])) - unname(unlist(venn_df["% of common cells",]) )
-common <- unname(unlist(venn_df["% of common cells",]))
+# # calculate cR/eD venn diagram by *ATAC* cluster
+# venn_df <- data.frame("0" = c(as.integer(sum(srat_atac$seurat_clusters=="0")),
+#                               as.integer(sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% eD_cells)),
+#                               as.integer(sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% cR_cells)),
+#                               sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% cR_cells & colnames(srat_atac) %in% eD_cells),
+#                               sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% eD_cells)/sum(srat_atac$seurat_clusters=="0"),
+#                               sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% cR_cells)/sum(srat_atac$seurat_clusters=="0"),
+#                               sum(srat_atac$seurat_clusters=="0" & colnames(srat_atac) %in% cR_cells & colnames(srat_atac) %in% eD_cells)/sum(srat_atac$seurat_clusters=="0")
+# ))
+# for ( cl in c(1:(max(as.integer(srat_atac$seurat_clusters))-1))   ){
+#   char_cl = as.character(cl)
+#   temp_df <- data.frame("new" = c(sum(srat_atac$seurat_clusters==char_cl),
+#                                   sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% eD_cells),
+#                                   sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% cR_cells),
+#                                   sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% cR_cells & colnames(srat_atac) %in% eD_cells),
+#                                   sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% eD_cells)/sum(srat_atac$seurat_clusters==char_cl),
+#                                   sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% cR_cells)/sum(srat_atac$seurat_clusters==char_cl),
+#                                   sum(srat_atac$seurat_clusters==char_cl & colnames(srat_atac) %in% cR_cells & colnames(srat_atac) %in% eD_cells)/sum(srat_atac$seurat_clusters==char_cl)
+#   ))
+#   venn_df <- cbind(venn_df, temp_df)
+# }
+# colnames(venn_df) <- as.character(c(0:(max(as.integer(srat_atac$seurat_clusters))-1) ))
+# rownames(venn_df) <- c("total cells",
+#                        "# of eD cells",
+#                        "# of cR cells",
+#                        "# of common cells",
+#                        "% of eD cells",
+#                        "% of cR cells",
+#                        "% of common cells"
+# )
+# #write.table(venn_df, venns_per_ATAC_cl, sep = '\t', row.names = T, col.names = T, quote = F)
+# eD_tpr_only <- unname(unlist(venn_df["% of eD cells",])) - unname(unlist(venn_df["% of common cells",]) )
+# cR_tpr_only <- unname(unlist(venn_df["% of cR cells",])) - unname(unlist(venn_df["% of common cells",]) )
+# common <- unname(unlist(venn_df["% of common cells",]))
 
-Values <- matrix(c(cR_tpr_only, common, eD_tpr_only), nrow = 3, ncol = max(as.integer(srat_atac$seurat_clusters)), byrow = TRUE)
-barplot(Values, main = "eD vs cR by cluster", names.arg = seq(0, max(as.integer(srat_atac$seurat_clusters))-1) , 
-        xlab = "cluster", ylab = "fraction", col = c("grey", "pink", "salmon"))
-#legend(25, 0.1, lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1), legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
-legend("topleft", bg="white", lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1),
-       legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
+# Values <- matrix(c(cR_tpr_only, common, eD_tpr_only), nrow = 3, ncol = max(as.integer(srat_atac$seurat_clusters)), byrow = TRUE)
+# barplot(Values, main = "eD vs cR by cluster", names.arg = seq(0, max(as.integer(srat_atac$seurat_clusters))-1) , 
+#         xlab = "cluster", ylab = "fraction", col = c("grey", "pink", "salmon"))
+# #legend(25, 0.1, lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1), legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
+# legend("topleft", bg="white", lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1),
+#        legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
 
-#UMAP_comparison(srat_atac, vale_clean)
-#UMAP_comparison(vale_clean, srat_atac)
+# #UMAP_comparison(srat_atac, vale_clean)
+# #UMAP_comparison(vale_clean, srat_atac)
+# saveRDS(srat_atac, srat_atac_vale_clean)
 
 saveRDS(vale_clean, srat_vale_clean)
-saveRDS(srat_atac, srat_atac_vale_clean)
 
 # ---------------- plots FRiP-after -----------------------------------
 A = vale_clean$FRiP[ colnames(vale_clean) %in% eD_cells   ]
