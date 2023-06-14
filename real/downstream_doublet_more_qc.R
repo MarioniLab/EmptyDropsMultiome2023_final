@@ -116,25 +116,25 @@ print(ggplot(df_FRiP, aes(x = frip, y = cluster, height = stat(density))) +
         theme_ridges(grid = FALSE, center_axis_labels = TRUE)+
         geom_vline(xintercept = max_frip_of_excluded))
 
-# germ cells
-genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 = c("DAZL", "IFITM1", "NANOG", "NANOS3", "POU5F1", "DDX4", "MAEL", "ZGLP1", "STRA8")
-genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia = c( "MEIOC", "SYCP1", "FIGLA", "LHX8", "NOBOX", "ZP3", "GDF9", "SPOCD1", "MORC1")
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")) )
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")))
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 ) )
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia ))
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = c("DCC", "ZP3") ))
+# # germ cells
+# genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 = c("DAZL", "IFITM1", "NANOG", "NANOS3", "POU5F1", "DDX4", "MAEL", "ZGLP1", "STRA8")
+# genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia = c( "MEIOC", "SYCP1", "FIGLA", "LHX8", "NOBOX", "ZP3", "GDF9", "SPOCD1", "MORC1")
+# print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")) )
+# print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")))
+# print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_PGC_FGC_FGCmitotic_oogoniaSTRA8 ) )
+# print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_oogoniameiotic_preoocyte_oocyte_prespermatogonia ))
+# print(VlnPlot(vale_clean, group.by = "sub.cluster", features = c("DCC", "ZP3") ))
 
-# developing ovary
-genes_germcells_to_mesGATA4 = c( "DAZL", "UPK3B", "GATA4", "LHX9", "NR5A1", "WNT6", "IRX3", "FOXL2", "ARX")
-genes_mesGATA2_to_neural = c( "TCF21", "PDGFRA", "DCV", "GATA2", "NR2F1", "PDGFRB")
-genes_mesGATA2_to_neural2 = c( "MYH11", "PTPRC", "CDH5", "PAX8", "EPCAM", "HBA1", "ASCL1")
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_germcells_to_mesGATA4 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")) )
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_mesGATA2_to_neural )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
-print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_mesGATA2_to_neural2 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_germcells_to_mesGATA4 ) )
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_mesGATA2_to_neural ) )
-print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_mesGATA2_to_neural2 ) )
+# # developing ovary
+# genes_germcells_to_mesGATA4 = c( "DAZL", "UPK3B", "GATA4", "LHX9", "NR5A1", "WNT6", "IRX3", "FOXL2", "ARX")
+# genes_mesGATA2_to_neural = c( "TCF21", "PDGFRA", "DCV", "GATA2", "NR2F1", "PDGFRB")
+# genes_mesGATA2_to_neural2 = c( "MYH11", "PTPRC", "CDH5", "PAX8", "EPCAM", "HBA1", "ASCL1")
+# print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_germcells_to_mesGATA4 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred")) )
+# print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_mesGATA2_to_neural )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
+# print(DimPlot(vale_clean, group.by = "sub.cluster", label=T) | FeaturePlot(vale_clean, order=T, features = genes_mesGATA2_to_neural2 )& scale_colour_gradientn(colours = c( "cyan", "deepskyblue", "forestgreen", "darkorange", "darkred"))  )
+# print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_germcells_to_mesGATA4 ) )
+# print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_mesGATA2_to_neural ) )
+# print(VlnPlot(vale_clean, group.by = "sub.cluster", features = genes_mesGATA2_to_neural2 ) )
 
 # UMAP with eD vs cR
 print(DimPlot(vale_clean, group.by = "comparison", sizes.highlight=0.1, reduction = "umap", label=T, cols = c("grey", "blue", "red")) )  #+scale_color_manual(labels = c( "eD", "both", "cR",), values = c("blue", "red"))    )
