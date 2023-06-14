@@ -228,9 +228,9 @@ srat_subset_rna <- RunUMAP(srat_subset_rna, dims = 1:50, seed.use = 42)
 print(DimPlot(srat_subset_rna, label=T))
 
 srat_subset_rna$comparison <- 1
-srat_subset_rna$comparison[ colnames(srat_subset_rna) %in% eD_minus_rna] <- "Emptydrops-multiome"
+srat_subset_rna$comparison[ colnames(srat_subset_rna) %in% eD_minus_rna] <- "EmptyDropsMultiome"
 srat_subset_rna$comparison[ colnames(srat_subset_rna) %in% intersection] <- "both"
-srat_subset_rna$comparison[ colnames(srat_subset_rna) %in% rna_minus_eD] <- "eD-rna"
+srat_subset_rna$comparison[ colnames(srat_subset_rna) %in% rna_minus_eD] <- "EmptyDrops"
 
     
 
