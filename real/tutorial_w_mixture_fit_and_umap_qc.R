@@ -7,34 +7,24 @@ library(ggridges)
 library(mixtools)
 library(UpSetR)
 library(eulerr)
-#library(DelayedMatrixStats)
 library(EmptyDropsMultiome)
 library(dplyr)
-#library(GenomeInfoDb)
 library(EnsDb.Hsapiens.v86)
-#source("real/vale_annotate.R")
-#source("real/clustering_comparison.R")
 source("simulations/fcn_for_sim.R")
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/realdata/", current_date)
 dir.create(file.path(opath), recursive=TRUE)
 
 
-ALLFILES <- c(#"pbmc_gran_sorted/raw_feature_bc_matrix.h5",
+ALLFILES <- c(
                "valentina_8176/FCA_GND10288176_raw_feature_bc_matrix.h5",
                "valentina_8177/FCA_GND10288177_raw_feature_bc_matrix.h5"
-              # "valentina_8178/FCA_GND10288178_raw_feature_bc_matrix.h5",
-              # "valentina_8179/FCA_GND10288179_raw_feature_bc_matrix.h5",
-              # "valentina_8180/FCA_GND10288180_raw_feature_bc_matrix.h5"
               
             )
 
-ALL_BARCODES <- c(#"pbmc_gran_sorted/barcodes.tsv.gz",
+ALL_BARCODES <- c(
                   "valentina_8176/barcodes.tsv.gz",
                   "valentina_8177/barcodes.tsv.gz"
-                  # "valentina_8178/barcodes.tsv.gz",
-                  # "valentina_8179/barcodes.tsv.gz",
-                  # "valentina_8180/barcodes.tsv.gz"
 )
 
 
