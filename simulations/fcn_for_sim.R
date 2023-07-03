@@ -81,15 +81,15 @@ SIMFUN_multiome_no_scrambling_vale <- function(raw.mat, raw.mat_atac, group1=500
   mat2_atac <- reorderRows(mat2_atac, round(nrow(mat2_atac) * reorder.rate))
   mat2_atac <- downsampleMatrix(mat2_atac, prop=down.rate.atac)
   
-  mat3 <- raw.mat[,sampling3]
-  mat3 <- reorderRows(mat3, round(nrow(mat3) * reorder.rate))
-  mat3 <- downsampleMatrix(mat3, prop=down.rate.rna/2)
+#   mat3 <- raw.mat[,sampling3]
+#   mat3 <- reorderRows(mat3, round(nrow(mat3) * reorder.rate))
+#   mat3 <- downsampleMatrix(mat3, prop=down.rate.rna/2)
   
-  mat3_atac <- raw.mat_atac[,sampling3]
-  mat3_atac <- reorderRows(mat3_atac, round(nrow(mat3_atac) * reorder.rate))
+#   mat3_atac <- raw.mat_atac[,sampling3]
+#   mat3_atac <- reorderRows(mat3_atac, round(nrow(mat3_atac) * reorder.rate))
   
-  mat2 <- cbind(mat2, mat3)
-  mat2_atac <- cbind(mat2_atac, mat3_atac)
+#   mat2 <- cbind(mat2, mat3)
+#   mat2_atac <- cbind(mat2_atac, mat3_atac)
   
   # rename colnames to avoid overlaps
   colnames(mat1) <- paste0("g1", seq(1, dim(mat1)[2]))
@@ -240,22 +240,92 @@ SIMFUN_multiome_no_scrambling_bigger_empties <- function(raw.mat, raw.mat_atac, 
   # create ambient profiles
   ambient.prof <- rowSums(raw.mat[,!above_k_means])
   ambient.prof_atac <- rowSums(raw.mat_atac[,!above_k_means])
-  added_vector <- rmultinom(n=1, size=120, prob=ambient.prof)
-  added_vector_atac <- rmultinom(n=1, size=110, prob=ambient.prof_atac)
+#   added_vector <- rmultinom(n=1, size=120, prob=ambient.prof)
+#   added_vector_atac <- rmultinom(n=1, size=110, prob=ambient.prof_atac)
   
   # empties
   resampled <- raw.mat[,!above_k_means]
   resampled_atac <- raw.mat_atac[,!above_k_means]
   
-  resampled_extra = 2*resampled[, colSums(resampled)>50] 
-  resampled_atac_extra = 2*resampled_atac[, colSums(resampled_atac)>50] 
-  
+#   resampled_extra = 7*resampled[, colSums(resampled)>50] 
+#   resampled_atac_extra = 7*resampled_atac[, colSums(resampled_atac)>50] 
+    
+#   # try 2  
+#   resampled_extra1 = 10*resampled[, colSums(resampled)+colSums(resampled_atac)>100 & colSums(resampled)>50] 
+#   resampled_atac_extra1 = 10*resampled_atac[, colSums(resampled)+colSums(resampled_atac)>100 & colSums(resampled_atac)>50] 
+#   resampled_extra2 = 7*resampled[, colSums(resampled)+colSums(resampled_atac)>100] 
+#   resampled_atac_extra2 = 7*resampled_atac[, colSums(resampled)+colSums(resampled_atac)>100] 
+#   resampled_extra3 = 5*resampled[, colSums(resampled)+colSums(resampled_atac)>100] 
+#   resampled_atac_extra3 = 5*resampled_atac[, colSums(resampled)+colSums(resampled_atac)>100] 
+#   resampled_extra4 = 3*resampled[, colSums(resampled)+colSums(resampled_atac)>100] 
+#   resampled_atac_extra4 = 3*resampled_atac[, colSums(resampled)+colSums(resampled_atac)>100] 
+#   resampled_extra5 = 1.5*resampled[, colSums(resampled)+colSums(resampled_atac)>100] 
+#   resampled_atac_extra5 = 1.5*resampled_atac[, colSums(resampled)+colSums(resampled_atac)>100] 
+
+#   resampled = cbind(resampled, resampled_extra1, resampled_extra2, resampled_extra3, resampled_extra4, resampled_extra5)
+#   resampled_atac = cbind(resampled_atac, resampled_atac_extra1, resampled_atac_extra2, resampled_atac_extra3, resampled_atac_extra4, resampled_atac_extra5)
+      
+  # try 3  
+#   resampled_extra = t(t(resampled[, colSums(resampled)>50 ]) * (floor(11/(150-50) *(colSums(resampled)-50)+1) ))
+#   resampled_atac_extra = t(t(resampled_atac[, colSums(resampled_atac)>50])  * (floor(11/(150-50) *(colSums(resampled_atac)-50)+1) ))
+#   resampled = cbind(resampled, resampled_extra)
+#   resampled_atac = cbind(resampled_atac, resampled_atac_extra)
+    
+  # try 4 
+#   resampled_extra1 = resampled[, colSums(resampled)>50 & colSums(resampled)<60]
+#   resampled_extra2 = 2*resampled[, colSums(resampled)>60 & colSums(resampled)<70]
+#   resampled_extra3 = 3*resampled[, colSums(resampled)>70 & colSums(resampled)<80]
+#   resampled_extra4 = 4*resampled[, colSums(resampled)>80 & colSums(resampled)<90]
+#   resampled_extra5 = 5*resampled[, colSums(resampled)>90 & colSums(resampled)<100]
+#   resampled_extra6 = 6*resampled[, colSums(resampled)>100 & colSums(resampled)<110]
+#   resampled_extra7 = 7*resampled[, colSums(resampled)>110 & colSums(resampled)<120]
+#   resampled_extra8 = 8*resampled[, colSums(resampled)>120 & colSums(resampled)<130]
+#   resampled_extra9 = 9*resampled[, colSums(resampled)>130 & colSums(resampled)<140]
+#   resampled_extra10 = 10*resampled[, colSums(resampled)>140 ]
+ 
+#   resampled_atac_extra1 =   resampled_atac[, colSums(resampled_atac)>50 & colSums(resampled_atac)<60]
+#   resampled_atac_extra2 = 2*resampled_atac[, colSums(resampled_atac)>60 & colSums(resampled_atac)<70]
+#   resampled_atac_extra3 = 3*resampled_atac[, colSums(resampled_atac)>70 & colSums(resampled_atac)<80]
+#   resampled_atac_extra4 = 4*resampled_atac[, colSums(resampled_atac)>80 & colSums(resampled_atac)<90]
+#   resampled_atac_extra5 = 5*resampled_atac[, colSums(resampled_atac)>90 & colSums(resampled_atac)<100]
+#   resampled_atac_extra6 = 6*resampled_atac[, colSums(resampled_atac)>100 & colSums(resampled_atac)<110]
+#   resampled_atac_extra7 = 7*resampled_atac[, colSums(resampled_atac)>110 & colSums(resampled_atac)<120]
+#   resampled_atac_extra8 = 8*resampled_atac[, colSums(resampled_atac)>120 & colSums(resampled_atac)<130]
+#   resampled_atac_extra9 = 9*resampled_atac[, colSums(resampled_atac)>130 & colSums(resampled_atac)<140]
+#   resampled_atac_extra10=10*resampled_atac[, colSums(resampled_atac)>140 ]
+ 
+#   resampled = cbind(resampled, 
+#                    resampled_extra1, resampled_extra2,
+#                    resampled_extra3, resampled_extra4,
+#                    resampled_extra5, resampled_extra6,
+#                    resampled_extra7, resampled_extra8,
+#                    resampled_extra9, resampled_extra10)
+#   resampled_atac = cbind(resampled_atac, 
+#                    resampled_atac_extra1, resampled_atac_extra2,
+#                    resampled_atac_extra3, resampled_atac_extra4,
+#                    resampled_atac_extra5, resampled_atac_extra6,
+#                    resampled_atac_extra7, resampled_atac_extra8,
+#                    resampled_atac_extra9, resampled_atac_extra10)
+
+  # try 5
+  soup_ind = intersect(which(colSums(resampled)< 150 & colSums(resampled)>50),   which(colSums(resampled_atac)< 150 & colSums(resampled_atac)>50) )
+  print("number of soup droplets: ")
+  print(length(soup_ind))
+  resampled_extra = resampled[ , soup_ind]
+  resampled_atac_extra = resampled_atac[ , soup_ind]
+  factors <- sample(2:10, length(soup_ind), replace=T)  
+  factors_atac <- sample(2:40, length(soup_ind), replace=T)  
+  for (i in seq(1, length(soup_ind))){
+      resampled_extra[ , i]      = factors[i]*resampled_extra[ , i]
+      resampled_atac_extra[ , i] = factors_atac[i]*resampled_atac_extra[ , i]
+  }
   resampled = cbind(resampled, resampled_extra)
   resampled_atac = cbind(resampled_atac, resampled_atac_extra)
+
   
   # give index names to missing colnames
-  colnames(resampled)= as.character(seq(1, dim(resampled)[2]))
-  colnames(resampled_atac)=as.character(seq(1, dim(resampled_atac)[2]))
+  colnames(resampled)     = as.character(seq(1, dim(resampled)[2]))
+  colnames(resampled_atac)= as.character(seq(1, dim(resampled_atac)[2]))
   
   # Sampling real cells in group 1.
   # All things above the k-means line are assumed to be real.
