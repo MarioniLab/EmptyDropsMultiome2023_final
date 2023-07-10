@@ -340,27 +340,37 @@ SIMFUN_multiome_no_scrambling_bigger_empties <- function(raw.mat, raw.mat_atac, 
   mat1_atac <- reorderRows(mat1_atac, round(nrow(mat1_atac) * reorder.rate))
   
   # Sampling cells in group 2, with downsampling.
-  sampling2 = sample(is.real, ceiling(group2/2), replace=FALSE)
-  sampling3 = sample(is.real, group2-ceiling(group2/2), replace=FALSE)
+  # for group 2 and 3
+#   sampling2 = sample(is.real, ceiling(group2/2), replace=FALSE)
+#   sampling3 = sample(is.real, group2-ceiling(group2/2), replace=FALSE)
   
+#   mat2 <- raw.mat[,sampling2]
+#   mat2 <- reorderRows(mat2, round(nrow(mat2) * reorder.rate))
+#   mat2 <- downsampleMatrix(mat2, prop=down.rate.rna)
+  
+#   mat2_atac <- raw.mat_atac[,sampling2]
+#   mat2_atac <- reorderRows(mat2_atac, round(nrow(mat2_atac) * reorder.rate))
+#   mat2_atac <- downsampleMatrix(mat2_atac, prop=down.rate.atac)
+  
+#   mat3 <- raw.mat[,sampling3]
+#   mat3 <- reorderRows(mat3, round(nrow(mat3) * reorder.rate))
+#   mat3 <- downsampleMatrix(mat3, prop=down.rate.rna/2)
+  
+#   mat3_atac <- raw.mat_atac[,sampling3]
+#   mat3_atac <- reorderRows(mat3_atac, round(nrow(mat3_atac) * reorder.rate))
+  
+#   mat2 <- cbind(mat2, mat3)
+#   mat2_atac <- cbind(mat2_atac, mat3_atac)
+  
+  # group 2, but not 3
+  sampling2 = sample(is.real, ceiling(group2), replace=FALSE)  
   mat2 <- raw.mat[,sampling2]
   mat2 <- reorderRows(mat2, round(nrow(mat2) * reorder.rate))
   mat2 <- downsampleMatrix(mat2, prop=down.rate.rna)
-  
   mat2_atac <- raw.mat_atac[,sampling2]
   mat2_atac <- reorderRows(mat2_atac, round(nrow(mat2_atac) * reorder.rate))
   mat2_atac <- downsampleMatrix(mat2_atac, prop=down.rate.atac)
-  
-  mat3 <- raw.mat[,sampling3]
-  mat3 <- reorderRows(mat3, round(nrow(mat3) * reorder.rate))
-  mat3 <- downsampleMatrix(mat3, prop=down.rate.rna/2)
-  
-  mat3_atac <- raw.mat_atac[,sampling3]
-  mat3_atac <- reorderRows(mat3_atac, round(nrow(mat3_atac) * reorder.rate))
-  
-  mat2 <- cbind(mat2, mat3)
-  mat2_atac <- cbind(mat2_atac, mat3_atac)
-  
+
   # rename colnames to avoid overlaps
   colnames(mat1) <- paste0("g1", seq(1, dim(mat1)[2]))
   colnames(mat1_atac) <- paste0("g1", seq(1, dim(mat1_atac)[2]) )
