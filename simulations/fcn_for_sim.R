@@ -333,10 +333,10 @@ SIMFUN_multiome_no_scrambling_bigger_empties <- function(raw.mat, raw.mat_atac, 
   sampling1 = sample(is.real, group1, replace=FALSE)
   
   mat1 <- raw.mat[,sampling1]
-  mat1 <- reorderRows(mat1, round(nrow(mat1) * reorder.rate))
+  #mat1 <- reorderRows(mat1, round(nrow(mat1) * reorder.rate))
   
   mat1_atac <- raw.mat_atac[,sampling1]
-  mat1_atac <- reorderRows(mat1_atac, round(nrow(mat1_atac) * reorder.rate))
+  #mat1_atac <- reorderRows(mat1_atac, round(nrow(mat1_atac) * reorder.rate))
   
   # Sampling cells in group 2, with downsampling.
   # for group 2 and 3
