@@ -449,11 +449,17 @@ SIMFUN_multiome_no_scrambling_bigger_empties_mono <- function(raw.mat, raw.mat_a
   # Sampling real cells in group 1.
   # All things above the k-means line are assumed to be real.
   is.real <- which(above_k_means==1)
-  mat1 <- raw.mat[,is.real]
-  mat1 <- reorderRows(mat1, round(nrow(mat1) * reorder.rate))
+  sampling1 = sample(is.real, group1, replace=FALSE)
+  mat1 <- raw.mat[,sampling1]
+  mat1_atac <- raw.mat_atac[,sampling1]
+    
+  #try 1   
+#   is.real <- which(above_k_means==1)
+#   mat1 <- raw.mat[,is.real]
+#   mat1 <- reorderRows(mat1, round(nrow(mat1) * reorder.rate))
   
-  mat1_atac <- raw.mat_atac[,is.real]
-  mat1_atac <- reorderRows(mat1_atac, round(nrow(mat1_atac) * reorder.rate))
+#   mat1_atac <- raw.mat_atac[,is.real]
+#   mat1_atac <- reorderRows(mat1_atac, round(nrow(mat1_atac) * reorder.rate))
   
   # Sampling cells in group 2, with downsampling.
   sampling2 = sample(is.real, ceiling(group2), replace=FALSE)  
