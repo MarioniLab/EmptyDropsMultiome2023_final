@@ -80,7 +80,8 @@ start_time <- Sys.time()
 set.seed(0)
 eD.out_multi <- emptydrops_multiome(count_matrix_rna, lower_rna, barhop_rna, count_matrix_atac, lower_atac, barhop_atac )
 print("the number of cells detected is: ")
-print(sum(eD.out_multi$FDR_multi<0.001 & ! is.na(eD.out_multi$FDR_multi)))
+#print(sum(eD.out_multi$FDR_multi<0.001 & ! is.na(eD.out_multi$FDR_multi)))
+print(sum(eD.out_multi$FDR<0.001 & ! is.na(eD.out_multi$FDR)))
 end_time <- Sys.time()
 print(end_time - start_time)
 
@@ -91,9 +92,6 @@ write.table(eD.out_multi,
 write.table(eD.out_multi@metadata,
             eD_metadata,
             sep = '\t', row.names = T, col.names = T, quote = F)
-
-
-
 
 
 cR_cells <- readLines(cR_barcodes_file)
@@ -113,7 +111,8 @@ srat[["ATAC"]] <- CreateChromatinAssay(
   validate.fragments = FALSE
 )
 
-srat$FDR_multi <- eD.out_multi[colnames(srat),]$FDR_multi
+#srat$FDR_multi <- eD.out_multi[colnames(srat),]$FDR_multi
+srat$FDR <- eD.out_multi[colnames(srat),]$FDR
 srat$k_means <- eD.out_multi[colnames(srat),]$k_means
 srat$FDR <- eD.out_multi[colnames(srat),]$FDR
 
@@ -132,11 +131,12 @@ seqlevelsStyle(annotations) <- 'UCSC'
 Annotation(srat) <- annotations
 
 # compute TSS enrichment score per cell
-srat <- TSSEnrichment(object = srat, fast = FALSE)
+#srat <- TSSEnrichment(object = srat, fast = FALSE)
 
 DefaultAssay(srat) <- "RNA"
 
-eD_cells <- eD.out_multi$Row.names[ eD.out_multi$FDR_multi<0.001 & ! is.na(eD.out_multi$FDR_multi) ]
+#eD_cells <- eD.out_multi$Row.names[ eD.out_multi$FDR_multi<0.001 & ! is.na(eD.out_multi$FDR_multi) ]
+eD_cells <- eD.out_multi$Row.names[ eD.out_multi$FDR<0.001 & ! is.na(eD.out_multi$FDR) ]
 eD_rna_cells <- eD.out_multi$Row.names[ eD.out_multi$FDR_RNA<0.001 & ! is.na(eD.out_multi$FDR_RNA) ]
     
 listInput <- list(eD = eD_cells, 
@@ -151,24 +151,23 @@ p2 <- plot(overlaps,
 print(p1)
 print(p2)
 
-listInput <- list(eD = eD_cells, 
-                  cR = cR_cells
-                  )
-p1 <- upset(fromList(listInput), nsets = 6,, order.by = "freq")
-overlaps <- euler(listInput, shape = "ellipse")
-p2 <- plot(overlaps, 
-           quantities = TRUE,
-           labels = list(font = 4))
-print(p1)
-print(p2)
+# listInput <- list(eD = eD_cells, 
+#                   cR = cR_cells
+#                   )
+# p1 <- upset(fromList(listInput), nsets = 6,, order.by = "freq")
+# overlaps <- euler(listInput, shape = "ellipse")
+# p2 <- plot(overlaps, 
+#            quantities = TRUE,
+#            labels = list(font = 4))
+# print(p1)
+# print(p2)
 
 
 
 # make umap
-
 union_cells <- union( eD_cells, eD_rna_cells)
-eD_minus_rna <- setdiff(eD_rna_cells, eD_cells)
-rna_minus_eD <- setdiff( eD_cells, eD_rna_cells )
+rna_minus_eD <- setdiff(eD_rna_cells, eD_cells)
+eD_minus_rna <- setdiff( eD_cells, eD_rna_cells )
 intersection <- intersect(eD_cells, eD_rna_cells)
 srat_subset_rna <- subset(srat, cells=union_cells )
 DefaultAssay(srat_subset_rna) <- "RNA"
@@ -181,39 +180,17 @@ srat_subset_rna <- AddMetaData(srat_subset_rna, percent.ribo, col.name = "percen
 srat_subset_rna[["percent.mt"]] <- PercentageFeatureSet(srat_subset_rna, pattern = "^MT-")
 mito_lim <- median(srat_subset_rna[["percent.mt"]][,1]) + 3* mad(srat_subset_rna[["percent.mt"]][,1])
 
-hist(srat_subset_rna[["TSS.enrichment"]][,1] , breaks=100)
+# hist(srat_subset_rna[["TSS.enrichment"]][,1] , breaks=100)
 
-print(VlnPlot(
-  object = srat_subset_rna,
-  features = c(
-    'TSS.enrichment'),
-  pt.size = 0.1
-)+NoLegend() )
+# print(VlnPlot(
+#   object = srat_subset_rna,
+#   features = c(
+#     'TSS.enrichment'),
+#   pt.size = 0.1
+# )+NoLegend() )
 
 
 plot.new()
-plot.new()
-# retained = sum(srat_subset_rna[["percent.ribo"]][,1] < ribo_lim & srat_subset_rna[["percent.mt"]][,1] < mito_lim )
-# retained_in_cR = colnames(srat_subset_rna)[srat_subset_rna[["percent.ribo"]][,1] < ribo_lim & srat_subset_rna[["percent.mt"]][,1] < mito_lim & colnames(srat_subset_rna) %in% cR_cells]
-# retained_in_eD = colnames(srat_subset_rna)[srat_subset_rna[["percent.ribo"]][,1] < ribo_lim & srat_subset_rna[["percent.mt"]][,1] < mito_lim & colnames(srat_subset) %in% eD_cells]
-# rejected = sum(srat_subset_rna[["percent.ribo"]][,1] > ribo_lim | srat_subset_rna[["percent.mt"]][,1] > mito_lim )
-# text(x=0.2, y=.1, paste0("retained=", retained))
-# text(x=0.2, y=0.2, paste0("rejected=", rejected))
-# text(x=0.2, y=0.3, paste0("retained_in_cR=", length(retained_in_cR) ) )
-# text(x=0.2, y=0.4, paste0("retained_in_eD=", length(retained_in_eD)) )
-# text(x=0.2, y=0.5, paste0("slope=", eD.out_multi@metadata[["k_means_slope"]]))
-# text(x=0.2, y=0.6, paste0("intercept=", eD.out_multi@metadata[["k_means_intercept"]] ))
-
-# listInput <- list(retained_eD = retained_in_eD, 
-#                   retained_cR = retained_in_cR
-# )
-# p1 <- upset(fromList(listInput), nsets = 6,, order.by = "freq")
-# overlaps <- euler(listInput, shape = "ellipse")
-# p2 <- plot(overlaps, 
-#            quantities = TRUE,
-#            labels = list(font = 4))
-# print(p1)
-# print(p2)
 
 
 
@@ -221,7 +198,7 @@ plot.new()
 srat_subset_rna <- subset(x = srat_subset_rna, subset = percent.mt < mito_lim)
 srat_subset_rna <- SCTransform(srat_subset_rna)
 srat_subset_rna <- RunPCA(srat_subset_rna, seed.use=42, features = VariableFeatures(object = srat_subset_rna))
-print(ElbowPlot(srat_subset_rna, ndims = 50)     )
+#print(ElbowPlot(srat_subset_rna, ndims = 50)     )
 srat_subset_rna <- FindNeighbors(srat_subset_rna, dims = 1:50)
 srat_subset_rna <- FindClusters(srat_subset_rna, resolution = 2, random.seed = 0)
 srat_subset_rna <- RunUMAP(srat_subset_rna, dims = 1:50, seed.use = 42)
@@ -255,10 +232,10 @@ max_frip_of_excluded = max(srat_subset_rna$FRiP[srat_subset_rna$excluded_reason=
 min_frip_of_cells = min(srat_subset_rna$FRiP[srat_subset_rna$is_cell==1]  )
 
 df_FRiP <- data.frame("frip"=srat_subset_rna$FRiP, "cluster"=srat_subset_rna$seurat_clusters)
-print(ggplot(df_FRiP, aes(x = frip, y = cluster, height = stat(density))) + 
-  geom_density_ridges(stat = "binline", bins = 80, scale = 0.95, draw_baseline = FALSE)+
-  theme_ridges(grid = FALSE, center_axis_labels = TRUE)+
-  geom_vline(xintercept = max_frip_of_excluded))
+# print(ggplot(df_FRiP, aes(x = frip, y = cluster, height = stat(density))) + 
+#   geom_density_ridges(stat = "binline", bins = 80, scale = 0.95, draw_baseline = FALSE)+
+#   theme_ridges(grid = FALSE, center_axis_labels = TRUE)+
+#   geom_vline(xintercept = max_frip_of_excluded))
 
   
 #saveRDS(srat_subset_rna, paste0(srat_file,"")
@@ -280,31 +257,31 @@ for ( cl in c(1:(max(as.integer(srat_subset_rna$seurat_clusters))-1))   ){
                                            sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_cells),
                                            sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_rna_cells),
                                            sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_rna_cells & colnames(srat_subset_rna) %in% eD_cells),
-                                           sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_cells)/sum(srat_subset_rna$seurat_clusters==char_cl),
-                                           sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_rna_cells)/sum(srat_subset_rna$seurat_clusters==char_cl),
-                                           sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_rna_cells & colnames(srat_subset_rna) %in% eD_cells)/sum(srat_subset_rna$seurat_clusters==char_cl)
+                                           round(sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_cells)/sum(srat_subset_rna$seurat_clusters==char_cl),1),
+                                           round(sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_rna_cells)/sum(srat_subset_rna$seurat_clusters==char_cl),1),
+                                           round(sum(srat_subset_rna$seurat_clusters==char_cl & colnames(srat_subset_rna) %in% eD_rna_cells & colnames(srat_subset_rna) %in% eD_cells)/sum(srat_subset_rna$seurat_clusters==char_cl),1)
   ))
   venn_df <- cbind(venn_df, temp_df)
 }
 colnames(venn_df) <- as.character(c(0:(max(as.integer(srat_subset_rna$seurat_clusters))-1) ))
 rownames(venn_df) <- c("total cells",
                        "# of eD cells",
-                       "# of cR cells",
+                       "# of eDrna cells",
                        "# of common cells",
                        "% of eD cells",
-                       "% of cR cells",
+                       "% of eDrna cells",
                        "% of common cells"
 )
 write.table(venn_df, venns_per_cl, sep = '\t', row.names = T, col.names = T, quote = F)
 eD_tpr_only <- unname(unlist(venn_df["% of eD cells",])) - unname(unlist(venn_df["% of common cells",]) )
-cR_tpr_only <- unname(unlist(venn_df["% of cR cells",])) - unname(unlist(venn_df["% of common cells",]) )
+eDrna_tpr_only <- unname(unlist(venn_df["% of eDrna cells",])) - unname(unlist(venn_df["% of common cells",]) )
 common <- unname(unlist(venn_df["% of common cells",]))
-Values <- matrix(c(cR_tpr_only, common, eD_tpr_only), nrow = 3, ncol = max(as.integer(srat_subset_rna$seurat_clusters)), byrow = TRUE)
-barplot(Values, main = "eD vs cR by cluster", names.arg = seq(0, max(as.integer(srat_subset_rna$seurat_clusters))-1) , 
+Values <- matrix(c(eDrna_tpr_only, common, eD_tpr_only), nrow = 3, ncol = max(as.integer(srat_subset_rna$seurat_clusters)), byrow = TRUE)
+barplot(Values, main = "eD vs eDrna by cluster", names.arg = seq(0, max(as.integer(srat_subset_rna$seurat_clusters))-1) , 
         xlab = "cluster", ylab = "fraction", col = c("grey", "pink", "salmon"))
 #legend(25, 0.1, lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1), legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
-legend("topleft", bg="white", lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1),
-       legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") ) 
+legend("topleft", bg="transparent", lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1),
+       legend=c("eD ", "common", "eDrna") ) 
     
 
 dev.off()
