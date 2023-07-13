@@ -276,12 +276,12 @@ write.table(venn_df, venns_per_cl, sep = '\t', row.names = T, col.names = T, quo
 eD_tpr_only <- unname(unlist(venn_df["% of eD cells",])) - unname(unlist(venn_df["% of common cells",]) )
 eDrna_tpr_only <- unname(unlist(venn_df["% of eDrna cells",])) - unname(unlist(venn_df["% of common cells",]) )
 common <- unname(unlist(venn_df["% of common cells",]))
-Values <- matrix(c(eDrna_tpr_only, common, eD_tpr_only), nrow = 3, ncol = max(as.integer(srat_subset_rna$seurat_clusters)), byrow = TRUE)
-barplot(Values, main = "eD vs eDrna by cluster", names.arg = seq(0, max(as.integer(srat_subset_rna$seurat_clusters))-1) , 
-        xlab = "cluster", ylab = "fraction", col = c("grey", "pink", "salmon"))
-#legend(25, 0.1, lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1), legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
-legend("topleft", bg="transparent", lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1),
-       legend=c("eD ", "common", "eDrna") ) 
+# Values <- matrix(c(eDrna_tpr_only, common, eD_tpr_only), nrow = 3, ncol = max(as.integer(srat_subset_rna$seurat_clusters)), byrow = TRUE)
+# barplot(Values, main = "eD vs eDrna by cluster", names.arg = seq(0, max(as.integer(srat_subset_rna$seurat_clusters))-1) , 
+#         xlab = "cluster", ylab = "fraction", col = c("grey", "pink", "salmon"))
+# #legend(25, 0.1, lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1), legend=c("EmptyDrops_multiome ", "common", "cellRanger-arc") )
+# legend("topleft", bg="transparent", lwd=3, col=c("salmon", "pink", "grey"), lty=c(1,1,1),
+#        legend=c("eD ", "common", "eDrna") ) 
     
 
 dev.off()
