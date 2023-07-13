@@ -127,12 +127,17 @@ for (i in seq_along(eD_out) ) {
       # Change axis line
       axis.line = element_line(colour = "black"),
       legend.title = element_blank(),
+      #legend.position="bottom",
+      legend.direction = "vertical",
       axis.text=element_text(size=text_size),
       axis.title=element_text(size=text_size)    #,legend.key.size=unit(10, 'cm')
     #) + scale_color_manual(values=c("deepskyblue2", "red", "purple") )+
     ) + scale_color_manual(values=c("cornflowerblue", "darkseagreen", "darkgoldenrod") )+
-    ggplot2::ggtitle("ground truth of simulation")+
-    guides(colour = guide_legend(override.aes = list(size=5)))
+    ggplot2::ggtitle("Ground truth")+
+    guides(colour = guide_legend(override.aes = list(size=5)))+
+    ggplot2::ylab("log(RNA)") +
+    ggplot2::xlab("log(ATAC)")
+ 
   
   
   # figure 2b
@@ -173,7 +178,7 @@ for (i in seq_along(eD_out) ) {
                               "identity"=eD.out_multi$identity   )
   lines  = data.frame( name=c( "k-means", "lower"),
                       slope=c( eD_meta$k_means_slope, eD_meta$k_means_slope ),
-                       intercept = c(  eD_meta$k_means_intercept,  eD_meta$lower_intercept ),
+                      intercept = c(  eD_meta$k_means_intercept,  eD_meta$lower_intercept ),
                       type=c("solid", "dashed")
             )
   
@@ -189,9 +194,11 @@ for (i in seq_along(eD_out) ) {
       axis.line = element_line(colour = "black"),
       axis.text=element_text(size=text_size),
       legend.title = element_blank(),
+      #legend.position="bottom",
+      legend.direction = "vertical",
       axis.title=element_text(size=text_size)
     ) + scale_color_manual(values=c("red", "deepskyblue2") )+
-    ggplot2::ggtitle("EmptyDropsMultiome on simulated data")+
+    ggplot2::ggtitle("EmptyDropsMultiome")+
     guides(colour = guide_legend(override.aes = list(size=5)))
   
   fig2c <- fig2c + geom_abline(data = lines, aes(intercept=intercept, slope=slope, linetype=name))
@@ -242,20 +249,34 @@ for (i in seq_along(eD_out) ) {
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       legend.title = element_blank(),
+      #legend.position="bottom",
+      legend.direction = "vertical",
       # Change axis line
       axis.line = element_line(colour = "black"),
       axis.text=element_text(size=text_size),
       axis.title=element_text(size=text_size),
-      axis.text.x = element_text(size=10, angle=30, vjust=.8, hjust=0.8)
-    ) #+
+      #axis.text.x = element_text(size=10, angle=30, vjust=.8, hjust=0.8)
+      axis.text.x = element_text(size=10, vjust=.8, hjust=0.8)
+    ) + ggplot2::ggtitle("ROC curves")
+
     #scale_x_continuous(breaks=c(0, 0.01, 0.02), labels= c("0.00", "0.01", "0.02"))
     
   
 
   library(ggpubr)
-  figure <- ggarrange(fig2a, fig2c, fig2d, 
-                      labels = c("A", "B", "C"),
-                      ncol = 3, nrow =1  )
+#   figure <- ggarrange(fig2a, fig2c, fig2d, 
+#                       labels = c("A", "B", "C"),
+#                       ncol = 3, nrow =1  ) 
+    
+  figure <- ggarrange(fig2a+theme(legend.position = "none"), 
+                      fig2c+theme(legend.position = "none"), 
+                      fig2d+theme(legend.position = "none"),
+                      get_legend(fig2a),
+                      get_legend(fig2c),
+                      get_legend(fig2d),
+                      labels = c("A", "B", "C", "", "", ""),
+                      heights = c(3, 1),
+                      ncol = 3, nrow =2  )
   print(figure)
   
   
