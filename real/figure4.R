@@ -1,4 +1,4 @@
-setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
+#setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
 library(DropletUtils)
 library(Matrix)
 library(rstudioapi)
@@ -17,8 +17,8 @@ library(ggpubr)
 
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/figures/", current_date)
-old_date = "20230329"
-less_old_date = "downstream_manybad_20230413"
+old_date = "20230608"
+less_old_date = "downstream_manybad_20230608"
 
 dir.create(opath,recursive=TRUE)
 
@@ -51,9 +51,9 @@ ffile <- file.path(opath, "fig4.pdf")
   srat_upstream <- readRDS(  file.path("data/output/realdata", old_date, stub, paste0("srat_", stub, ".rds")  ) ) 
   
   srat$sub.cluster_old <- srat$sub.cluster
-  srat <- RenameIdents(object = srat, `10` = "ooc", `6` = "pre-ooc-2", `5` = "pre-ooc-1", `2`="oog-m", `3`="oog-st", `8`="PGC", 
-                       `9`="CoEp", `0`="supp1", `11`="supp2", `4`="supp2", `1`="supp3",
-                       `7`="Mes", `13`="Imm", `12`="Endo")
+  srat <- RenameIdents(object = srat, `10` = "ooc", `6` = "pre-ooc-2", `5` = "pre-ooc-1", `1`="oog-m", `2`="oog-st", `8`="PGC", 
+                       `9`="CoEp", `0`="supp1", `12`="supp2", `3`="supp2", `4`="supp3", `11`="supp3",
+                       `7`="Mes", `14`="Imm", `13`="Endo")
   srat$sub.cluster <- srat@active.ident
   
   
@@ -172,7 +172,7 @@ ffile <- file.path(opath, "fig4.pdf")
   df_FRiP <- data.frame("frip"=srat$FRiP, "cluster"=srat$sub.cluster)
   ridgeplot1 <- ggplot(df_FRiP, aes(x = frip, y = cluster)) + 
     geom_rect(aes(xmin = -0.01, xmax = max_frip_of_excluded, ymin = -Inf, ymax = Inf), fill = "pink") + 
-    geom_rect(aes(xmin = max_frip_of_excluded, xmax = 50, ymin = -Inf, ymax = Inf), fill = "deepskyblue2") + 
+    geom_rect(aes(xmin = max_frip_of_excluded, xmax = 35, ymin = -Inf, ymax = Inf), fill = "deepskyblue2") + 
     geom_density_ridges(stat = "binline", bins = 80, scale = 0.95, draw_baseline = FALSE)+
     theme_ridges(grid = FALSE, center_axis_labels = TRUE)+
     geom_vline(xintercept = max_frip_of_excluded)
@@ -225,9 +225,9 @@ ffile <- file.path(opath, "fig4.pdf")
   
   
   srat$sub.cluster_old <- srat$sub.cluster
-  srat <- RenameIdents(object = srat, `10` = "ooc", `5` = "pre-ooc-2", `6` = "pre-ooc-1", `3`="oog-m", `2`="oog-st", `8`="PGC", 
-                       `9`="CoEp", `4`="supp1", `1`="supp2", `0`="supp3",
-                       `7`="Mes", `12`="Imm", `11`="Endo",`13`="Ery")
+  srat <- RenameIdents(object = srat, `10` = "ooc", `6` = "pre-ooc-2", `5` = "pre-ooc-1", `2`="oog-m", `4`="oog-st", `11`="oog-st", `8`="PGC", 
+                       `9`="CoEp", `3`="supp1", `1`="supp2", `0`="supp3",
+                       `7`="Mes",  `13`="Ery", `12`="Endo")
   srat$sub.cluster <- srat@active.ident
   
   
@@ -341,7 +341,7 @@ ffile <- file.path(opath, "fig4.pdf")
   df_FRiP <- data.frame("frip"=srat$FRiP, "cluster"=srat$sub.cluster)
   ridgeplot2 <-  ggplot(df_FRiP, aes(x = frip, y = cluster)) + 
     geom_rect(aes(xmin = -0.01, xmax = max_frip_of_excluded, ymin = -Inf, ymax = Inf), fill = "pink") + 
-    geom_rect(aes(xmin = max_frip_of_excluded, xmax = 50, ymin = -Inf, ymax = Inf), fill = "deepskyblue2") + 
+    geom_rect(aes(xmin = max_frip_of_excluded, xmax = 35, ymin = -Inf, ymax = Inf), fill = "deepskyblue2") + 
     geom_density_ridges(stat = "binline", bins = 80, scale = 0.95, draw_baseline = FALSE)+
     theme_ridges(grid = FALSE, center_axis_labels = TRUE)+
     geom_vline(xintercept = max_frip_of_excluded)
