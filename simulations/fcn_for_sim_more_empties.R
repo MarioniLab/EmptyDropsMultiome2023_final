@@ -241,7 +241,7 @@ SIMFUN_multiome_no_scrambling_vale_more_empties  <- function(raw.mat, raw.mat_at
   # # Assuming all cells below k-means line are empty droplets.
   
   # create more empties
-  ambient.prof <- 4*rowSums(raw.mat[,!above_k_means])
+  ambient.prof <- 4*rowSums(raw.mat[,!above_k_means & colSums(raw.mat)<1000])
   totals <- count_df_new$rna_count
   empty.totals <- totals[!above_k_means]
   
@@ -332,15 +332,15 @@ SIMFUN_multiome_no_scrambling_vale_more_empties  <- function(raw.mat, raw.mat_at
   mat1_atac <- reorderRows(mat1_atac, round(nrow(mat1_atac) * reorder.rate))
   
   # Sampling cells in group 2, with downsampling.
-  is.good <- which(above_k_means==1 
-                   & count_df_new$rna_count <14000 
-                   & count_df_new$rna_count >8000
-                   & count_df_new$atac_count <3000
-                   & count_df_new$atac_count >800
-  )
+#   is.good <- which(above_k_means==1 
+#                    & count_df_new$rna_count <14000 
+#                    & count_df_new$rna_count >8000
+#                    & count_df_new$atac_count <3000
+#                    & count_df_new$atac_count >800
+#   )
   
-  sampling2 = sample(is.good, ceiling(group2/2), replace=TRUE)
-  sampling3 = sample(is.good, group2-ceiling(group2/2), replace=TRUE)
+  sampling2 = sample(is.real, ceiling(group2/2), replace=TRUE)
+  sampling3 = sample(is.real, group2-ceiling(group2/2), replace=TRUE)
   
   # sampling2 = sample(is.real, ceiling(group2/2), replace=FALSE)
   # sampling3 = sample(is.real, group2-ceiling(group2/2), replace=FALSE)
