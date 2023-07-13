@@ -1,4 +1,4 @@
-setwd("~/analysis/EmptyDropsMultiome2023_final")
+#setwd("~/analysis/EmptyDropsMultiome2023_final")
 library(EmptyDropsMultiome)
 library(DropletUtils)
 library(Matrix)
@@ -14,7 +14,7 @@ library(stringr)
 
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/figures/", current_date)
-old_date = "20230528"
+old_date = "20230711"
 
 dir.create(opath,recursive=TRUE)
 
@@ -44,8 +44,10 @@ text_size =10
 # figure 2e
 f = file.path(resdir, "pbmc_gran_sortedeD-multiome-res.tsv")
 tab <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
+tab$Method[tab$Method=="eD-multiome"]="eD"
+tab$Method[tab$Method=="CellRanger-arc"]="cR"
 tab$xcoords = seq_along(1:dim(tab)[1]) + cumsum(as.integer(tab$Method=="eD-multiome" & tab$G1Size==tab$G1Size[1] ))
-observations2e = data.frame( "popul"= rep( c(rep("Large cells", 4), rep("Small cells", 4) ) , 4), 
+observations2e = data.frame( "popul"= rep( c(rep("large cells", 4), rep("small cells", 4) ) , 4), 
                              "Recall"= c( tab$G1[1:4], tab$G2[1:4], 
                                           tab$G1[5:8], tab$G2[5:8],
                                           tab$G1[9:12], tab$G2[9:12],
@@ -59,10 +61,10 @@ observations2e = data.frame( "popul"= rep( c(rep("Large cells", 4), rep("Small c
 
 
 fig2e <- ggplot(observations2e, aes(x=xcoords, y=Recall, color=method )) + 
-  geom_rect(color = NA, aes(xmin = 0, xmax = 8.5, ymin = 0, ymax = 1.01), fill = "grey") + 
-  geom_rect(color = NA, aes(xmin = 9.5, xmax = 17.5, ymin = 0, ymax = 1.01), fill = "grey") + 
-  geom_rect(color = NA, aes(xmin = 18.5, xmax = 26.5, ymin = 0, ymax = 1.01), fill = "grey") + 
-  geom_rect(color = NA, aes(xmin = 27.5, xmax = 36, ymin = 0, ymax = 1.01), fill = "grey") + 
+  geom_rect(color = NA, aes(xmin = 0, xmax = 8.5, ymin = 0, ymax = 1.01), fill = "lightgrey") + 
+  geom_rect(color = NA, aes(xmin = 9.5, xmax = 17.5, ymin = 0, ymax = 1.01), fill = "lightgrey") + 
+  geom_rect(color = NA, aes(xmin = 18.5, xmax = 26.5, ymin = 0, ymax = 1.01), fill = "lightgrey") + 
+  geom_rect(color = NA, aes(xmin = 27.5, xmax = 36, ymin = 0, ymax = 1.01), fill = "lightgrey") + 
   geom_point(size=2, aes(shape=popul))+
   scale_color_manual(values=c("blue",  "green", "salmon", "orange") )+
   theme_bw()+
@@ -110,7 +112,7 @@ for (i in seq_along(eD_out) ) {
   # fig 2a 
   eD.out_multi$identity_gt = "empty"
   eD.out_multi$identity_gt[substr(eD.out_multi$Row.names, 1,2)=="g2" ] = "small cells"
-  eD.out_multi$identity_gt[substr(eD.out_multi$Row.names, 1,2)=="g1" ] = "big cells"
+  eD.out_multi$identity_gt[substr(eD.out_multi$Row.names, 1,2)=="g1" ] = "large cells"
   
   observations2a = data.frame("log_atac"=log10(eD.out_multi$Total_chromatin+0.1),
                               "log_rna"=log10(eD.out_multi$Total_RNA+0.1),
@@ -129,7 +131,8 @@ for (i in seq_along(eD_out) ) {
       legend.title = element_blank(),
       axis.text=element_text(size=text_size),
       axis.title=element_text(size=text_size)    #,legend.key.size=unit(10, 'cm')
-    ) + scale_color_manual(values=c("deepskyblue2", "red", "purple") )+
+    #) + scale_color_manual(values=c("deepskyblue2", "red", "purple") )+
+    ) + scale_color_manual(values=c("cornflowerblue", "darkseagreen", "darkgoldenrod") )+
     ggplot2::ggtitle("ground truth of simulation")+
     guides(colour = guide_legend(override.aes = list(size=5)))
   
@@ -155,7 +158,7 @@ for (i in seq_along(eD_out) ) {
       axis.text=element_text(size=text_size),
       axis.title=element_text(size=text_size)
     ) + scale_color_manual(values=c("red", "deepskyblue2") )+
-    ggplot2::ggtitle("k-means")+
+    ggplot2::ggtitle("EmptyDropsMultiome on simulated data")+
     ggplot2::geom_abline(intercept = eD_meta$k_means_intercept,
                          slope = eD_meta$k_means_slope,
                         # linetype="dotted",
@@ -170,6 +173,11 @@ for (i in seq_along(eD_out) ) {
   observations2c = data.frame("log_atac"=log10(eD.out_multi$Total_chromatin+0.1),
                               "log_rna"=log10(eD.out_multi$Total_RNA+0.1),
                               "identity"=eD.out_multi$identity   )
+  lines  = data.frame( name=c("higher", "k-means", "lower"),
+                      slope=c(eD_meta$k_means_slope, eD_meta$k_means_slope, eD_meta$k_means_slope ),
+                       intercept = c( eD_meta$higher_intercept, eD_meta$k_means_intercept,  eD_meta$lower_intercept ),
+                      type=c("dashed", "solid", "dotted")
+            )
   
   fig2c <- ggplot(observations2c, aes(x=log_atac, y=log_rna, color=identity)) + 
     geom_point(size=0.1)+ 
@@ -185,50 +193,43 @@ for (i in seq_along(eD_out) ) {
       legend.title = element_blank(),
       axis.title=element_text(size=text_size)
     ) + scale_color_manual(values=c("red", "deepskyblue2") )+
-    ggplot2::ggtitle("k-means")+
-    ggplot2::geom_abline(intercept = eD_meta$k_means_intercept,
-                         slope = eD_meta$k_means_slope,
-                         # linetype="dotted",
-                         color = "black",
-                         size=0.5)+
-    ggplot2::geom_abline(intercept = eD_meta$lower_intercept,
-                         slope = eD_meta$k_means_slope,
-                         # linetype="dotted",
-                         color = "black",
-                          size=0.5)+
-    ggplot2::geom_abline(intercept = eD_meta$higher_intercept,
-                         slope = eD_meta$k_means_slope,
-                         # linetype="dotted",
-                         color = "black",
-                         size=0.5)+
+    ggplot2::ggtitle("EmptyDropsMultiome on simulated data")+
     guides(colour = guide_legend(override.aes = list(size=5)))
   
-  
+  fig2c <- fig2c + geom_abline(data = lines, aes(intercept=intercept, slope=slope, linetype=name))
+    
+    
   # figure 2d
   hard_cut <- log10(eD.out_multi$Total_RNA + 1) - eD_meta$k_means_slope * log10(eD.out_multi$Total_chromatin+1)
   emp.roc <- createRocPts(log(eD.out_multi$FDR_multi+1e-3), eD.out_multi$identity_gt)
+  emp_rna.roc <- createRocPts(log(eD.out_multi$FDR_RNA+1e-3), eD.out_multi$identity_gt)
   lib.roc <- createRocPts(-hard_cut, eD.out_multi$identity_gt)
 
   emp.fdr = emp.roc[,"empty"]/rowSums(emp.roc)
-  emp.tp1 = emp.roc[,"big cells"]/g1
+  emp.tp1 = emp.roc[,"large cells"]/g1
   emp.tp2 = emp.roc[,"small cells"]/g2
   lib.fdr = lib.roc[,"empty"]/rowSums(lib.roc)
-  lib.tp1 = lib.roc[,"big cells"]/g1
+  lib.tp1 = lib.roc[,"large cells"]/g1
   lib.tp2 = lib.roc[,"small cells"]/g2
+  emp_rna.fdr = emp_rna.roc[,"empty"]/rowSums(emp_rna.roc)
+  emp_rna.tp1 = emp_rna.roc[,"large cells"]/g1
+  emp_rna.tp2 = emp_rna.roc[,"small cells"]/g2
 
   length_rep = length(emp.fdr)+1
   observations2d = data.frame(   
-    "FDR" = c( c(0, emp.fdr), c(0, emp.fdr), c(0, lib.fdr), c(0, lib.fdr) ),
-    "TPR" = c( c(0, emp.tp1), c(0, emp.tp2), c(0, lib.tp1), c(0, lib.tp2) ),
-    "identity" = c( rep("eD (big cells) ", length_rep), rep("eD (small cells)", length_rep), rep("cR (big cells)", length_rep), rep("cR (small cells)", length_rep)     )
+    "FDR" = c( c(0, emp.fdr), c(0, emp.fdr), c(0, lib.fdr), c(0, lib.fdr), c(0, emp_rna.fdr), c(0, emp_rna.fdr) ),
+    "TPR" = c( c(0, emp.tp1), c(0, emp.tp2), c(0, lib.tp1), c(0, lib.tp2), c(0, emp_rna.tp1), c(0, emp_rna.tp2) ),
+    "identity" = c( rep("eD (large cells) ", length_rep), rep("eD (small cells)", length_rep), 
+                    rep("cR (large cells)", length_rep), rep("cR (small cells)", length_rep), 
+                    rep("eD-rna (large cells) ", length_rep), rep("eD-rna (small cells)", length_rep)     )
     )
   
   fig2d <- ggplot(observations2d, aes(x=FDR, y=TPR, colour=identity, lty = identity)) + 
     geom_line()+
     theme_bw()+
-    scale_x_continuous(limits = c(0, 0.025))+
-    scale_color_manual(values=c("grey", "grey", "salmon", "salmon") )+
-    scale_linetype_manual(values = c("solid", "dashed", "solid", "dashed") ) +
+    scale_x_continuous(limits = c(0, 0.05))+
+    scale_color_manual(values=c("blue", "blue", "salmon", "salmon", "orange", "orange") )+
+    scale_linetype_manual(values = c("solid", "dashed", "solid", "dashed", "solid", "dashed") ) +
     guides(colour = guide_legend(override.aes = list(size=5)))+ 
     theme(
       # Hide panel borders and remove grid lines
@@ -258,7 +259,7 @@ for (i in seq_along(eD_out) ) {
   
   dev.off()
   ffile <- file.path(opath, paste0(stub, "_fig2.jpeg"))  
-  ggsave(ffile, plot = figure, width=7.2, height=6.7, units="in")
+  ggsave(ffile, plot = figure, width=7.2, height=6.0, units="in")
   
 }
 
