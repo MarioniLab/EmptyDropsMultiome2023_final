@@ -7,6 +7,7 @@ library(Seurat)
 library(mixtools)
 library(tidyverse)
 source("simulations/fcn_for_sim.R")
+source("simulations/fcn_for_sim_more_empties.R")
 library("optparse")
 library(stringr)
 
@@ -28,6 +29,8 @@ ALLFILES <- c("pbmc_gran_sorted/raw_feature_bc_matrix.h5" #,
                #"valentina_FCA_GND10288180/raw_feature_bc_matrix" #,
                #"valentina_FCA_GND10288177/FCA_GND10288177_raw_feature_bc_matrix.h5"
 )
+# fname = "pbmc_gran_sorted/raw_feature_bc_matrix.h5"
+
 
 # choose specific file
 #option_list = list(
@@ -71,11 +74,11 @@ for (fname in ALLFILES) {
         }else if(stub=="valentina_FCA_GND10288177"){
           out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.1, down.rate.atac=0.1)  
           }else{
-            out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.04, down.rate.atac=0.02)  
-            #out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.05, down.rate.atac=0.05)  
-            #out <- SIMFUN_multiome_no_scrambling_bigger_empties(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.05, down.rate.atac=0.05)  
+            #out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.04, down.rate.atac=0.02)   
+            out <- SIMFUN_multiome_no_scrambling_bigger_empties(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.20, down.rate.atac=0.20)  
+#             out <- SIMFUN_multiome_no_scrambling_vale_more_empties(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.2,  down.rate.atac=0.2) 
+            #dev.off()
           }
-        dev.off()
         
         final_rna <- out$counts_rna
         final_atac <- out$counts_atac
@@ -226,7 +229,8 @@ for (fname in ALLFILES) {
         print(end_time - start_time)
         
   
-        is.sig <- eD.out_multi$FDR_multi <= 0.001 & !is.na(eD.out_multi$FDR_multi)
+        #is.sig <- eD.out_multi$FDR_multi <= 0.001 & !is.na(eD.out_multi$FDR_multi)
+        is.sig <- eD.out_multi$FDR <= 0.001 & !is.na(eD.out_multi$FDR)
         
         # rownames of emptydrops output are shuffled compared to colnames of the simulation. Shuffle them back.
         identities = out$identity[rownames(eD.out_multi)]
@@ -278,7 +282,20 @@ for (fname in ALLFILES) {
                 axis.title.y=element_text(size=14,face="bold"))
         abline(a=eD.out_multi@metadata["k_means_intercept"][[1]],b=eD.out_multi@metadata["k_means_slope"][[1]], col="blue")
         # abline(a=equation_parallel[1],b=equation_parallel[2], col="blue")
-        
+  
+#         plot(log10(eD.out_multi$Total_chromatin + 0.1), log10(eD.out_multi$Total_RNA + 0.1),
+#              #     xlim=c(0,1510) , ylim=c(0,8),
+#              pch=".",
+#              # cex=2,
+#              col=eD.out_multi$FDR_multi  ,
+#              xlab="log10(atac_count)", ylab="log10(rna_count)",
+#              main=paste0("eDatac_pvalue")
+#         )+theme(axis.title.x=element_text(size=14,face="bold"),
+#                 axis.title.y=element_text(size=14,face="bold"))
+#         abline(a=eD.out_multi@metadata["k_means_intercept"][[1]],b=eD.out_multi@metadata["k_means_slope"][[1]], col="blue")
+#         # abline(a=equation_parallel[1],b=equation_parallel[2], col="blue")
+ 
+                                      
         dev.off()
         
         write.table(eD.out_multi,  file.path( ppath, paste0(stub, "_eD_multiome_", g1, "_", g2, "-output.csv")), 
@@ -311,7 +328,8 @@ for (fname in ALLFILES) {
           #hard_cut <- log(eD.out_multi$Total_RNA + 1 - eD.out_multi@metadata["k_means_slope"][[1]] * eD.out_multi$Total_chromatin)
           hard_cut <- log10(eD.out_multi$Total_RNA + 1) - eD.out_multi@metadata["k_means_slope"][[1]] * log10(eD.out_multi$Total_chromatin+1)
           
-          emp.roc <- createRocPts(log(eD.out_multi$FDR_multi+1e-3), identities)
+          #emp.roc <- createRocPts(log(eD.out_multi$FDR_multi+1e-3), identities)
+          emp.roc <- createRocPts(log(eD.out_multi$FDR+1e-3), identities)
           emp_rna.roc <- createRocPts(log(eD.out_multi$FDR_RNA+1e-3), identities)
           lib.roc <- createRocPts(-hard_cut, identities)
           # eDrna.roc <- createRocPts(log(eD.out_multi$FDR_RNA+1e-3), identities)
@@ -331,7 +349,7 @@ for (fname in ALLFILES) {
 
           pdf(file.path(ppath, paste0(stub, "_eD_multiome_", "_", g1, "_", g2, "-roc.pdf")), width=10, height=6)
           par(mar=c(5.1, 4.1, 4.1, 14.1))
-          plot(c(0, emp.fdr), c(0, emp.tp1), xlim=c(0, 0.025), ylim=c(0, 1), type="l", col=emp.col, lwd=3, main=stub,
+          plot(c(0, emp.fdr), c(0, emp.tp1), xlim=c(0, 0.3), ylim=c(0, 1), type="l", col=emp.col, lwd=3, main=stub,
                xlab="Observed FDR", ylab="Recall", cex.axis=1.2, cex.lab=1.4, cex.main=1.4)
           lines(c(0, emp_rna.fdr), c(0, emp_rna.tp1), col=emp_rna.col, lwd=3) 
           lines(c(0, lib.fdr), c(0, lib.tp1), col=lib.col,lwd=3)
@@ -352,7 +370,8 @@ for (fname in ALLFILES) {
         all.thresholds <- c(0.001, 0.002, 0.005, 0.01) 
         collected <- numeric(length(all.thresholds))
         for (i in seq_along(all.thresholds)) {
-          collected[[i]] <- assessMethod(  eD.out_multi$FDR_multi<= all.thresholds[i], identities )["FDR"]
+          #collected[[i]] <- assessMethod(  eD.out_multi$FDR_multi<= all.thresholds[i], identities )["FDR"]
+          collected[[i]] <- assessMethod(  eD.out_multi$FDR<= all.thresholds[i], identities )["FDR"]
         }
         
         collected <- rbind(collected)
