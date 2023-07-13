@@ -1,4 +1,4 @@
-setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
+#setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
 library(DropletUtils)
 library(Matrix)
 library(rstudioapi)
@@ -14,8 +14,8 @@ library(eulerr)
 
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/figures/", current_date)
-old_date = "20230329"
-less_old_date = "downstream_manybad_20230413"
+old_date = "20230608"
+less_old_date = "downstream_manybad_20230608"
 
 dir.create(opath,recursive=TRUE)
 
