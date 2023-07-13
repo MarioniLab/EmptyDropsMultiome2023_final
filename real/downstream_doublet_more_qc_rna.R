@@ -16,7 +16,7 @@ source("simulations/fcn_for_sim.R")
 # );
 # opt_parser = OptionParser(option_list=option_list);
 # opt = parse_args(opt_parser);
-old_date <-  "20230711"  #"20230517"   #"20230329" #opt$date
+old_date <-  "20230712"  #"20230517"   #"20230329" #opt$date
 samples <- c("valentina_8176", "valentina_8177")  #, "valentina_8177")
 
 for (sample in samples){
@@ -32,7 +32,7 @@ markers_tsv <- file.path(downpath, "markers.tsv")
 markers_tsv_in_atac <- file.path(downpath, "markers_in_atac.tsv")
 srat_vale_clean <- file.path(downpath, "srat_vale_clean.rds")
 srat_atac_vale_clean <- file.path(downpath, "srat_atac_vale_clean.rds")
-venns_per_cl <- file.path(downpath, "venns_per_cl.csv") 
+venns_per_cl <- file.path(downpath, "venns_per_cl.tsv") 
 
 
 vale <- readRDS( paste0("data/output/realdata_rna/", old_date, "/", sample, "/srat_", sample, ".rds") )
@@ -181,6 +181,23 @@ p2 <- plot(overlaps,
            quantities = TRUE,
            labels = list(font = 4))
 print(p2)
+    
+# plot venn diagram eD vs rna vs mito clusters    
+
+if (sample=="valentina_8176"){
+  high_mito_clusters = c("0", "1", "2", "4", "7", "9", "11", "14") 
+} else if (sample=="valentina_8177") {
+  high_mito_clusters = c("1", "3", "4", "5", "10", "12", "14", "16") 
+} 
+listInput <- list(eD = colnames(vale_clean)[vale_clean$comparison %in% c("EmptyDropsMultiome", "both")], 
+                  eDrna = colnames(vale_clean)[vale_clean$comparison %in% c("EmptyDrops"  , "both")],
+                  high_mito = colnames(vale_clean)[vale_clean$seurat_clusters %in% high_mito_clusters]
+                  )
+overlaps <- euler(listInput, shape = "ellipse")
+p2 <- plot(overlaps, 
+           quantities = TRUE,
+           labels = list(font = 4))
+print(p2)
 
 # find markers plot heatmap
 eD_all.markers <- FindAllMarkers(vale_clean,  min.pct = 0.25, logfc.threshold = 0.25)
@@ -206,9 +223,10 @@ venn_df <- data.frame("0" = c(as.integer(sum(vale_clean$seurat_clusters=="0")),
                               as.integer(sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% eD_cells)),
                               as.integer(sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% rna_cells)),
                               sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% rna_cells & colnames(vale_clean) %in% eD_cells),
-                              sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% eD_cells)/sum(vale_clean$seurat_clusters=="0"),
-                              sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% rna_cells)/sum(vale_clean$seurat_clusters=="0"),
-                              sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% rna_cells & colnames(vale_clean) %in% eD_cells)/sum(vale_clean$seurat_clusters=="0")
+                              round(sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% eD_cells)/sum(vale_clean$seurat_clusters=="0"),2),
+                              round(sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% rna_cells)/sum(vale_clean$seurat_clusters=="0"),2),
+                              round(sum(vale_clean$seurat_clusters=="0" & colnames(vale_clean) %in% rna_cells & colnames(vale_clean) %in% eD_cells)/sum(vale_clean$seurat_clusters=="0"),2),
+                              round(median(  vale_clean$percent.mt[vale_clean$seurat_clusters=="0"]   ),2)
 ))
 for ( cl in c(1:(max(as.integer(vale_clean$seurat_clusters))-1))   ){
   char_cl = as.character(cl)
@@ -216,9 +234,10 @@ for ( cl in c(1:(max(as.integer(vale_clean$seurat_clusters))-1))   ){
                                   sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% eD_cells),
                                   sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% rna_cells),
                                   sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% rna_cells & colnames(vale_clean) %in% eD_cells),
-                                  round(sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% eD_cells)/sum(vale_clean$seurat_clusters==char_cl),1),
-                                  round(sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% rna_cells)/sum(vale_clean$seurat_clusters==char_cl),1),
-                                  round(sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% rna_cells & colnames(vale_clean) %in% eD_cells)/sum(vale_clean$seurat_clusters==char_cl),1)
+                                  round(sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% eD_cells)/sum(vale_clean$seurat_clusters==char_cl),2),
+                                  round(sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% rna_cells)/sum(vale_clean$seurat_clusters==char_cl),2),
+                                  round(sum(vale_clean$seurat_clusters==char_cl & colnames(vale_clean) %in% rna_cells & colnames(vale_clean) %in% eD_cells)/sum(vale_clean$seurat_clusters==char_cl),2),
+                                  round( median(  vale_clean$percent.mt[vale_clean$seurat_clusters==char_cl ]   ), 2)
   ))
   venn_df <- cbind(venn_df, temp_df)
 }
@@ -229,7 +248,8 @@ rownames(venn_df) <- c("total cells",
                        "# of common cells",
                        "% of eD cells",
                        "% of rna cells",
-                       "% of common cells"
+                       "% of common cells",
+                       "median mito %"
 )
 write.table(venn_df, venns_per_cl, sep = '\t', row.names = T, col.names = T, quote = F)
 eD_tpr_only <- unname(unlist(venn_df["% of eD cells",])) - unname(unlist(venn_df["% of common cells",]) )
