@@ -1,4 +1,4 @@
-setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
+#setwd("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3")
 library(DropletUtils)
 library(Matrix)
 library(rstudioapi)
@@ -15,7 +15,7 @@ library(grid)
 
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/figures/", current_date)
-old_date = "20230329"
+old_date = "20230608"
 
 text_size = 10
 
@@ -76,7 +76,7 @@ for (i in seq_along(ALLFILES) ) {
   
   FRiP <- meta$atac_peak_region_fragments / meta$atac_fragments * 100
   
-  eD.out_multi = read.table(paste0("/mnt/beegfs6/home3/ahringer/em613/analysis/multiomics/emptryDrops_multiome2023_eDv3/data/output/realdata/", old_date,"/", stub, "/", stub, "_eD_multiome.tsv"), sep="\t", header=T)  
+  eD.out_multi = read.table(paste0("data/output/realdata/", old_date,"/", stub, "/", stub, "_eD_multiome.tsv"), sep="\t", header=T)  
   named_FRiP <- FRiP
   names(named_FRiP) <- meta$barcode
   
@@ -123,7 +123,7 @@ for (i in seq_along(ALLFILES) ) {
     ggplot2::scale_x_continuous( limit = c(-0.2, 100.2), oob = function(x, limits) x)+
     ggplot2::scale_y_continuous( limit = c(0, 8000), oob = function(x, limits) x)+
     ggplot2::ylab("Frequency") +
-    ggplot2::xlab("FRiP") +
+    ggplot2::xlab("FRiP(%)") +
     ggplot2::ggtitle("cR FRiP threshold")+
     ggplot2::geom_vline(xintercept = min_frip_of_cells,
                         # linetype="dotted",
@@ -202,8 +202,9 @@ for (i in seq_along(ALLFILES) ) {
       legend.title = element_blank()
     ) +
     scale_color_manual(values=c("deepskyblue2", "pink" ))+
-    ggplot2::ggtitle("cR count threshold")
-    
+    ggplot2::ggtitle("cR count threshold")+
+    ggplot2::ylab("log(RNA)") +
+    ggplot2::xlab("log(ATAC)")
   
   
   # FIGURE 1d: ATAC counts
@@ -280,13 +281,47 @@ for (i in seq_along(ALLFILES) ) {
                       labels = c("A", "B", "C", "D", "E"),
                       ncol = 2, nrow = 3, common.legend = TRUE, legend="bottom")
   print(figure)
-  
-  
   dev.off()
+
+#   # pretty pdf version
+#   library(grid)
+#   # Move to a new page
+#   grid.newpage()
+#   # Create layout : nrow = 3, ncol = 2
+#   pushViewport(viewport(layout = grid.layout(nrow = 3, ncol = 2)))
+#   # A helper function to define a region on the layout
+#   define_region <- function(row, col){
+#     viewport(layout.pos.row = row, layout.pos.col = col)
+#   }                              
+#   pdf(file.path(opath, paste0(stub, "_fig1_pretty.pdf")) )                        
+#   figure <- ggarrange(fig1b, fig1c, fig1d, fig1e,
+#                     labels = c("B", "C", "D", "E"),
+#                     ncol = 2, nrow = 2, common.legend = TRUE, legend="top")
+#   print(fig1a, vp = define_region(row = 1, col = 1:2))   # Span over two columns
+#   print(figure, vp = define_region(row = 2:3, col = 1:2))
+#   dev.off() 
+                
+                                
+  library("gridExtra")
+  pdf(file.path(opath, paste0(stub, "_fig1_pretty.pdf")) )                        
+  #grid.arrange(fig1a, fig1b, fig1c, layout_matrix = matrix(c(1, 3, 2, 3), nrow = 2))
+  grid.arrange(fig1a, fig1b, fig1c, fig1e, fig1d, layout_matrix = rbind(c(1, 1),
+                                                          c(2, 3),
+                                                          c(4, 5))
+              )
+  dev.off() 
+                                
+                                
   ffile <- file.path(opath, paste0(stub, "_fig1.jpeg"))  
   ggsave(ffile, plot = figure, width=7.2, height=6.7, units="in")
-  # ffile <- file.path(opath, paste0(stub, "_fig1.pdf"))  
-  # ggsave(ffile, plot = figure, width=7.2, height=6.7, units="in")
+                                
+  
+  ffile <- file.path(opath, paste0(stub, "_fig1_pretty.jpeg"))  
+  ggsave(ffile, plot =   grid.arrange(fig1a, fig1b, fig1c, fig1e, fig1d, labels=c("A", "B", "C", "D", "E"), layout_matrix = rbind(c(1, 1),
+                                                          c(2, 3),
+                                                          c(4, 5))
+              ), 
+         width=7.2, height=6.7, units="in")
   
 }
 
