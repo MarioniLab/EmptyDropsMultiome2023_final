@@ -392,6 +392,9 @@ SIMFUN_multiome_no_scrambling_bigger_empties <- function(raw.mat, raw.mat_atac, 
 
 
 SIMFUN_multiome_no_scrambling_bigger_empties_mono <- function(raw.mat, raw.mat_atac, group1=500, group2=500, reorder.rate=0.1, down.rate.rna=0.20,  down.rate.atac=0.20) {
+    
+  #read in the barcodes that are monocytes  
+  monocytes <- readLines("data/output/sim/monocytes.txt")
   
   # remove NA values from the count matrices
   raw.mat[ is.na(raw.mat)  ] = 0
@@ -462,7 +465,9 @@ SIMFUN_multiome_no_scrambling_bigger_empties_mono <- function(raw.mat, raw.mat_a
 #   mat1_atac <- reorderRows(mat1_atac, round(nrow(mat1_atac) * reorder.rate))
   
   # Sampling cells in group 2, with downsampling.
-  sampling2 = sample(is.real, ceiling(group2), replace=FALSE)  
+  sampling2 = sample(monocytes, ceiling(group2), replace=FALSE) 
+  print("the first few sampled monocytes are: ")
+  print(sampling2[c(1,2,3,4)])
   mat2 <- raw.mat[,sampling2]
   mat2 <- reorderRows(mat2, round(nrow(mat2) * reorder.rate))
   mat2 <- downsampleMatrix(mat2, prop=down.rate.rna)
