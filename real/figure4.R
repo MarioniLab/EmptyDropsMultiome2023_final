@@ -17,8 +17,8 @@ library(ggpubr)
 
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/figures/", current_date)
-old_date = "20230608"
-less_old_date = "downstream_manybad_20230608"
+old_date = "20230712" #"20230608"
+less_old_date = "downstream_manybad_20230713" #"downstream_manybad_20230608"
 
 dir.create(opath,recursive=TRUE)
 
@@ -50,15 +50,15 @@ ffile <- file.path(opath, "fig4.pdf")
   srat <- readRDS(  file.path("data/output/realdata", old_date, stub, less_old_date, "srat_vale_clean.rds")   ) 
   srat_upstream <- readRDS(  file.path("data/output/realdata", old_date, stub, paste0("srat_", stub, ".rds")  ) ) 
   
-  srat$sub.cluster_old <- srat$sub.cluster
-  srat <- RenameIdents(object = srat, `10` = "ooc", `6` = "pre-ooc-2", `5` = "pre-ooc-1", `1`="oog-m", `2`="oog-st", `8`="PGC", 
-                       `9`="CoEp", `0`="supp1", `12`="supp2", `3`="supp2", `4`="supp3", `11`="supp3",
-                       `7`="Mes", `14`="Imm", `13`="Endo")
-  srat$sub.cluster <- srat@active.ident
+  srat$seurat_clusters_old <- srat$seurat_clusters
+  srat <- RenameIdents(object = srat, `10` = "ooc", `5` = "pre-ooc-2", `6` = "pre-ooc-1", `2`="oog-m", `3`="oog-st", `8`="PGC", 
+                       `9`="CoEp", `4`="supp1", `0`="supp2",  `1`="supp3", `11`="supp3",
+                       `7`="Mes",  `13`="Imm", `12`="Endo")
+  srat$seurat_clusters <- srat@active.ident
   
   
   fill_var <- factor(srat$comparison, levels=c('cellRanger-arc', 'both', 'Emptydrops-multiome'))
-  venn_df_ggplot <- data.frame("cluster"=srat$sub.cluster,
+  venn_df_ggplot <- data.frame("cluster"=srat$seurat_clusters,
                                "comparison"=fill_var
                                )
 
@@ -109,7 +109,7 @@ ffile <- file.path(opath, "fig4.pdf")
   # srat$sub.cluster <- srat@active.ident
   # 
   
-  umap1 <- DimPlot(srat, group.by = "sub.cluster", sizes.highlight=0.1, label.size = text_size/3, label=T, reduction = "umap")+guides(colour = "none")+
+  umap1 <- DimPlot(srat, group.by = "seurat_clusters", sizes.highlight=0.1, label.size = text_size/3, label=T, reduction = "umap")+guides(colour = "none")+
     theme(
       # Hide panel borders and remove grid lines
       panel.border = element_blank(),
@@ -169,7 +169,7 @@ ffile <- file.path(opath, "fig4.pdf")
     guides(colour = guide_legend(override.aes = list(size=5)))
   
   max_frip_of_excluded = max(srat$FRiP[srat$excluded_reason==2]  )
-  df_FRiP <- data.frame("frip"=srat$FRiP, "cluster"=srat$sub.cluster)
+  df_FRiP <- data.frame("frip"=srat$FRiP, "cluster"=srat$seurat_clusters)
   ridgeplot1 <- ggplot(df_FRiP, aes(x = frip, y = cluster)) + 
     geom_rect(aes(xmin = -0.01, xmax = max_frip_of_excluded, ymin = -Inf, ymax = Inf), fill = "pink") + 
     geom_rect(aes(xmin = max_frip_of_excluded, xmax = 35, ymin = -Inf, ymax = Inf), fill = "deepskyblue2") + 
@@ -224,15 +224,15 @@ ffile <- file.path(opath, "fig4.pdf")
   srat_upstream <- readRDS(  file.path("data/output/realdata", old_date, stub, paste0("srat_", stub, ".rds")  ) ) 
   
   
-  srat$sub.cluster_old <- srat$sub.cluster
-  srat <- RenameIdents(object = srat, `10` = "ooc", `6` = "pre-ooc-2", `5` = "pre-ooc-1", `2`="oog-m", `4`="oog-st", `11`="oog-st", `8`="PGC", 
-                       `9`="CoEp", `3`="supp1", `1`="supp2", `0`="supp3",
-                       `7`="Mes",  `13`="Ery", `12`="Endo")
-  srat$sub.cluster <- srat@active.ident
+  srat$seurat_clusters_old <- srat$seurat_clusters
+  srat <- RenameIdents(object = srat, `10` = "ooc", `6` = "pre-ooc-2", `5` = "pre-ooc-1", `3`="oog-m", `4`="oog-st", `11`="oog-st", `8`="PGC", 
+                       `9`="CoEp", `1`="supp1", `2`="supp2", `0`="supp3",
+                       `7`="Mes",  `13`="Imm", `12`="Endo", `14`="Ery")
+  srat$seurat_clusters <- srat@active.ident
   
   
   fill_var <- factor(srat$comparison, levels=c('cellRanger-arc', 'both', 'Emptydrops-multiome'))
-  venn_df_ggplot <- data.frame("cluster"=srat$sub.cluster,
+  venn_df_ggplot <- data.frame("cluster"=srat$seurat_clusters,
                                "comparison"=fill_var
   )
 
@@ -277,7 +277,7 @@ ffile <- file.path(opath, "fig4.pdf")
   umap_comparison2
   
 
-  umap2 <- DimPlot(srat, group.by = "sub.cluster", sizes.highlight=0.1, label.size = text_size/3, label=T, reduction = "umap")+guides(colour = "none")+
+  umap2 <- DimPlot(srat, group.by = "seurat_clusters", sizes.highlight=0.1, label.size = text_size/3, label=T, reduction = "umap")+guides(colour = "none")+
     theme(
       # Hide panel borders and remove grid lines
       panel.border = element_blank(),
@@ -338,7 +338,7 @@ ffile <- file.path(opath, "fig4.pdf")
     guides(colour = guide_legend(override.aes = list(size=5)))
   
   max_frip_of_excluded = max(srat$FRiP[srat$excluded_reason==2]  )
-  df_FRiP <- data.frame("frip"=srat$FRiP, "cluster"=srat$sub.cluster)
+  df_FRiP <- data.frame("frip"=srat$FRiP, "cluster"=srat$seurat_clusters)
   ridgeplot2 <-  ggplot(df_FRiP, aes(x = frip, y = cluster)) + 
     geom_rect(aes(xmin = -0.01, xmax = max_frip_of_excluded, ymin = -Inf, ymax = Inf), fill = "pink") + 
     geom_rect(aes(xmin = max_frip_of_excluded, xmax = 35, ymin = -Inf, ymax = Inf), fill = "deepskyblue2") + 
@@ -385,7 +385,7 @@ ffile <- file.path(opath, "fig4.pdf")
   
   
   
-  
+# figure 4  
 pdf(ffile, width=7.2, height=6.7)
 figure <- ggarrange(umap1, umap2, umap_comparison1, umap_comparison2, barplot1, barplot2,
                     labels = c("A", "B", "C", "D", "E", "F"),
@@ -395,7 +395,22 @@ dev.off()
 ffile <- file.path(opath, "fig4.jpeg") 
 ggsave(ffile, plot = figure, width=7.2, height=6.7, units="in")
 
+ffile <- file.path(opath, "fig4A.pdf") 
+ggsave(ffile, plot = umap1, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "fig4B.pdf") 
+ggsave(ffile, plot = umap2, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "fig4C.pdf") 
+ggsave(ffile, plot = umap_comparison1, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "fig4D.pdf") 
+ggsave(ffile, plot = umap_comparison2, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "fig4E.pdf") 
+ggsave(ffile, plot = barplot1, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "fig4F.pdf") 
+ggsave(ffile, plot = barplot2, width=7.2, height=6.7, units="in")
 
+
+
+# supp 1
 ffile <- file.path(opath, "supp1.pdf") 
 pdf(ffile, width=7.2, height=6.7)
 figure_supp <- ggarrange(ridgeplot1, ridgeplot2,
@@ -406,7 +421,14 @@ dev.off()
 ffile <- file.path(opath, "supp1.jpeg")  
 ggsave(ffile, plot = figure_supp, width=7.2, height=6.7, units="in")
 
+ffile <- file.path(opath, "supp1A.pdf")  
+ggsave(ffile, plot = ridgeplot1, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp1B.pdf")  
+ggsave(ffile, plot = ridgeplot2, width=7.2, height=6.7, units="in")
 
+
+
+# supp 2
 ffile <- file.path(opath, "supp2.pdf") 
 pdf(ffile, width=7.2, height=6.7)
 figure_supp <- ggarrange(umap1, umap2, germ_cells1, germ_cells2, supporting_somatic1, supporting_somatic2,
@@ -417,9 +439,23 @@ dev.off()
 ffile <- file.path(opath, "supp2.jpeg")  
 ggsave(ffile, plot = figure_supp, width=7.2, height=6.7, units="in")
 
+ffile <- file.path(opath, "supp2A.pdf")  
+ggsave(ffile, plot = umap1, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp2B.pdf")  
+ggsave(ffile, plot = umap2, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp2C.pdf")  
+ggsave(ffile, plot = germ_cells1, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp2D.pdf")  
+ggsave(ffile, plot = germ_cells2, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp2E.pdf")  
+ggsave(ffile, plot = supporting_somatic1, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp2F.pdf")  
+ggsave(ffile, plot = supporting_somatic2, width=7.2, height=6.7, units="in")
+
+
 
 # supplemental figure: venns before and venns after
-
+# supp 3
 ffile <- file.path(opath, "supp3.pdf") 
 pdf(ffile, width=7.2, height=6.7)
 figure_supp <- ggarrange( euler_figure1_bf_qc, euler_figure2_bf_qc, euler_figure1, euler_figure2,
@@ -430,6 +466,14 @@ dev.off()
 ffile <- file.path(opath, "supp3.jpeg")  
 ggsave(ffile, plot = figure_supp, width=7.2, height=6.7, units="in")
 
+ffile <- file.path(opath, "supp3A.pdf")  
+ggsave(ffile, plot = euler_figure1_bf_qc, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp3B.pdf")  
+ggsave(ffile, plot = euler_figure2_bf_qc, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp3C.pdf")  
+ggsave(ffile, plot = euler_figure1, width=7.2, height=6.7, units="in")
+ffile <- file.path(opath, "supp3D.pdf")  
+ggsave(ffile, plot = euler_figure2, width=7.2, height=6.7, units="in")
 
 
 
