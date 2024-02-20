@@ -15,7 +15,7 @@ library(grid)
 
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/figures/", current_date)
-old_date = "20230608"
+old_date = "20230712"
 
 text_size = 10
 
@@ -315,13 +315,23 @@ for (i in seq_along(ALLFILES) ) {
   ffile <- file.path(opath, paste0(stub, "_fig1.jpeg"))  
   ggsave(ffile, plot = figure, width=7.2, height=6.7, units="in")
                                 
-  
-  ffile <- file.path(opath, paste0(stub, "_fig1_pretty.jpeg"))  
-  ggsave(ffile, plot =   grid.arrange(fig1a, fig1b, fig1c, fig1e, fig1d, labels=c("A", "B", "C", "D", "E"), layout_matrix = rbind(c(1, 1),
-                                                          c(2, 3),
-                                                          c(4, 5))
-              ), 
-         width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig1A.pdf"))  
+  ggsave(ffile, plot = fig1a, width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig1B.pdf"))  
+  ggsave(ffile, plot = fig1b, width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig1C.pdf"))  
+  ggsave(ffile, plot = fig1c, width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig1D.pdf"))  
+  ggsave(ffile, plot = fig1e, width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig1E.pdf"))  
+  ggsave(ffile, plot = fig1d, width=7.2, height=6.7, units="in")
+
+#   ffile <- file.path(opath, paste0(stub, "_fig1_pretty.jpeg"))  
+#   ggsave(ffile, plot =   grid.arrange(fig1a, fig1b, fig1c, fig1e, fig1d, labels=c("A", "B", "C", "D", "E"), layout_matrix = rbind(c(1, 1),
+#                                                           c(2, 3),
+#                                                           c(4, 5))
+#               ), 
+#          width=7.2, height=6.7, units="in")
   
 }
 
