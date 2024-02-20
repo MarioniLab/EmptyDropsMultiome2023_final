@@ -14,8 +14,8 @@ library(eulerr)
 
 current_date= paste(unlist(strsplit(as.character(Sys.Date()), "-")), collapse="")
 opath <- paste0("data/output/figures/", current_date)
-old_date = "20230608"
-less_old_date = "downstream_manybad_20230608"
+old_date = "20230712" #"20230608"
+less_old_date = "downstream_manybad_20230713"
 
 dir.create(opath,recursive=TRUE)
 
@@ -308,6 +308,26 @@ for (i in seq_along(ALLFILES) ) {
   
   ffile <- file.path(opath, paste0(stub, "_fig3.jpeg"))  
   ggsave(ffile, plot = figure, width=7.2, height=6.7, units="in")
+  
+                                
+  ffile <- file.path(opath, paste0(stub, "_fig3A.pdf"))  
+  ggsave(ffile, plot = ATAC_counts, width=7.2, height=6.7, units="in")
+  
+  ffile <- file.path(opath, paste0(stub, "_fig3B.pdf"))  
+  ggsave(ffile, plot = RNA_counts, width=7.2, height=6.7, units="in")
+  
+  ffile <- file.path(opath, paste0(stub, "_fig3C.pdf"))  
+  ggsave(ffile, plot = euler_figure, width=7.2, height=6.7, units="in")
+  
+  ffile <- file.path(opath, paste0(stub, "_fig3D.pdf"))  
+  ggsave(ffile, plot = frip_after, width=7.2, height=6.7, units="in")
+  
+  ffile <- file.path(opath, paste0(stub, "_fig3E.pdf"))  
+  ggsave(ffile, plot = cell_calling, width=7.2, height=6.7, units="in")
+
+  ffile <- file.path(opath, paste0(stub, "_fig3F.pdf"))  
+  ggsave(ffile, plot = log_comb_after, width=7.2, height=6.7, units="in")
+  
   
 }
 
