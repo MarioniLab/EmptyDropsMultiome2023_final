@@ -23,13 +23,11 @@ set.seed(73953024)
 resdir <- paste0("data/output/sim_monocytes/", old_date, "/results-sim")
 
 eD_METADATA <- c(
-  "pics-sim/pbmc_gran_sorted_eD_multiome_5000_5000-metadata.csv",
   "pics-sim/pbmc_gran_sorted_eD_multiome_5000_2000-metadata.csv",
   "pics-sim/pbmc_gran_sorted_eD_multiome_2000_2000-metadata.csv"
 )
 
 eD_out <- c(
-  "pics-sim/pbmc_gran_sorted_eD_multiome_5000_5000-output.csv",
   "pics-sim/pbmc_gran_sorted_eD_multiome_5000_2000-output.csv",
   "pics-sim/pbmc_gran_sorted_eD_multiome_2000_2000-output.csv"
 )
@@ -283,8 +281,17 @@ for (i in seq_along(eD_out) ) {
   
   
   dev.off()
+    
   ffile <- file.path(opath, paste0(stub, "_fig2_monocytes.jpeg"))  
   ggsave(ffile, plot = figure, width=7.2, height=6.7, units="in")
+    
+  ffile <- file.path(opath, paste0(stub, "_fig2A_monocytes.pdf"))  
+  ggsave(ffile, plot = fig2a, width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig2B_monocytes.pdf"))  
+  ggsave(ffile, plot = fig2c, width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig2C_monocytes.pdf"))  
+  ggsave(ffile, plot = fig2d, width=7.2, height=6.7, units="in")
+  
   
 }
 
