@@ -50,7 +50,7 @@ for (fname in ALLFILES) {
       for (it in 1:1) { 
         print(it)
 
-        out <- SIMFUN_multiome_no_scrambling(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.04, down.rate.atac=0.02)   
+        out <- SIMFUN_multiome_no_scrambling_no_small_rna(raw.mat, raw.mat_atac, group1=g1, group2=g2, reorder.rate=0.1, down.rate.rna=0.06, down.rate.atac=0.02)   
 
         final_rna <- out$counts_rna
         final_atac <- out$counts_atac
