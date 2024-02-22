@@ -206,6 +206,93 @@ SIMFUN_multiome_no_scrambling <- function(raw.mat, raw.mat_atac, group1=500, gro
 
 
 
+
+SIMFUN_multiome_no_scrambling_no_small_rna <- function(raw.mat, raw.mat_atac, group1=500, group2=500, reorder.rate=0.1, down.rate.rna=0.04,  down.rate.atac=0.02) {
+  # this version has a uni-modal distribution of small cells: small in both RNA and ATAC
+  
+  # remove NA values from the count matrices
+  raw.mat[ is.na(raw.mat)  ] = 0
+  raw.mat_atac[ is.na(raw.mat_atac)  ] = 0
+  
+  # change column names to the union of column names
+  outlist = match_colnames(raw.mat, raw.mat_atac)
+  raw.mat = outlist$mat1_new
+  raw.mat_atac = outlist$mat2_new
+  
+  # order column names alphabetically in both count matrices
+  raw.mat = raw.mat[,order(colnames(raw.mat))]
+  raw.mat_atac = raw.mat_atac[,colnames(raw.mat)]
+  
+  # create dataframe to call_cells by k-means
+  count_df <- data.frame("rownames" = colnames(raw.mat),
+                         "atac_count" = unname(colSums(raw.mat_atac)),
+                         "rna_count" = unname(colSums(raw.mat)),
+                         "excluded"  = rep(F, length(colSums(raw.mat))),
+                         "is_cell"  =  rep(0, length(colSums(raw.mat)))
+  )
+  list_output <- call_cells(count_df)
+  count_df_new <- list_output[[1]]
+  count_df_new <- count_df_new[order(count_df_new$rownames),]
+  above_k_means <- count_df_new$is_cell
+  
+  
+  # # Assuming all cells below k-means line are empty droplets.
+  
+  resampled <- raw.mat[,!above_k_means]
+
+  resampled_atac <- raw.mat_atac[,!above_k_means]
+  
+  
+  # give index names to missing colnames
+  colnames(resampled)= as.character(seq(1, dim(resampled)[2]))
+  colnames(resampled_atac)=as.character(seq(1, dim(resampled_atac)[2]))
+  
+  # Sampling real cells in group 1.
+  # All things above the k-means line are assumed to be real.
+  # We shuffle 10% of the genes to break any remaining "ambience".
+  is.real <- which(above_k_means==1)
+  sampling1 = sample(is.real, group1, replace=FALSE)
+  
+  mat1 <- raw.mat[,sampling1]
+  mat1 <- reorderRows(mat1, round(nrow(mat1) * reorder.rate))
+  
+  mat1_atac <- raw.mat_atac[,sampling1]
+  mat1_atac <- reorderRows(mat1_atac, round(nrow(mat1_atac) * reorder.rate))
+  
+  # Sampling cells in group 2, with downsampling.
+  sampling2 = sample(is.real, group2, replace=FALSE)
+  
+  mat2 <- raw.mat[,sampling2]
+  mat2 <- reorderRows(mat2, round(nrow(mat2) * reorder.rate))
+  mat2 <- downsampleMatrix(mat2, prop=down.rate.rna)
+  
+  mat2_atac <- raw.mat_atac[,sampling2]
+  mat2_atac <- reorderRows(mat2_atac, round(nrow(mat2_atac) * reorder.rate))
+  mat2_atac <- downsampleMatrix(mat2_atac, prop=down.rate.atac)
+    
+
+  # rename colnames to avoid overlaps
+  colnames(mat1) <- paste0("g1", seq(1, dim(mat1)[2]))
+  colnames(mat1_atac) <- paste0("g1", seq(1, dim(mat1_atac)[2]) )
+  colnames(mat2) <- paste0("g2", seq(1, dim(mat2)[2])  )
+  colnames(mat2_atac) <- paste0("g2", seq(1, dim(mat2_atac)[2]) )
+  
+  # Completed.
+  identity=rep(0:2, c(ncol(resampled), ncol(mat1), ncol(mat2)))
+  names(identity) = c(colnames(resampled), colnames(mat1), colnames(mat2))
+  
+  return(list(counts_rna=cbind(resampled, mat1, mat2),
+              counts_atac=cbind(resampled_atac, mat1_atac, mat2_atac),
+              identity=identity
+  ))
+  
+}
+
+
+
+
+
+
 SIMFUN_multiome_no_scrambling_bigger_empties <- function(raw.mat, raw.mat_atac, group1=500, group2=500, reorder.rate=0.1, down.rate.rna=0.04,  down.rate.atac=0.02) {
   
   # remove NA values from the count matrices
