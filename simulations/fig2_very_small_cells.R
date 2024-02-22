@@ -20,7 +20,7 @@ dir.create(opath,recursive=TRUE)
 
 set.seed(73953024)
 
-resdir <- paste0("data/output/sim_very_small_cells/", old_date, "/results-sim")
+resdir <- paste0("data/output/sim_very_small/", old_date, "/results-sim")
 
 eD_METADATA <- c(
   "pics-sim/pbmc_gran_sorted_eD_multiome_5000_5000-metadata.csv",
@@ -98,8 +98,8 @@ for (i in seq_along(eD_out) ) {
   feDmeta = eD_METADATA[i]
   feDout = eD_out[i]
   
-  eD_meta <- read.table( file.path("data/output/sim", old_date, feDmeta) , header = T, sep=",")
-  eD.out_multi <- read.table( file.path("data/output/sim", old_date, feDout) , header = T, sep=",")
+  eD_meta <- read.table( file.path("data/output/sim_very_small", old_date, feDmeta) , header = T, sep=",")
+  eD.out_multi <- read.table( file.path("data/output/sim_very_small", old_date, feDout) , header = T, sep=",")
   
   stub <- substring(feDout, 30,47)
   g1 <- as.double( substring(stub, 10, 13) )
@@ -198,6 +198,42 @@ for (i in seq_along(eD_out) ) {
   
   fig2c <- fig2c + geom_abline(data = lines, aes(intercept=intercept, slope=slope, linetype=name))
     
+
+    
+  # figure 2c_cR
+
+  observations2c = data.frame("log_atac"=log10(eD.out_multi$Total_chromatin+0.1),
+                              "log_rna"=log10(eD.out_multi$Total_RNA+0.1),
+                              "identity"=eD.out_multi$k_means   )
+  lines  = data.frame( name=c( "k-means"),
+                      slope=c(eD_meta$k_means_slope ),
+                       intercept = c( eD_meta$k_means_intercept),
+                      type=c( "solid")
+            )
+  
+  fig2c_cR <- ggplot(observations2c, aes(x=log_atac, y=log_rna, color=identity)) + 
+    geom_point(size=0.1)+ 
+    theme(
+      # Hide panel borders and remove grid lines
+      panel.border = element_blank(),
+      panel.background = element_rect("white"),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      # Change axis line
+      axis.line = element_line(colour = "black"),
+      axis.text=element_text(size=text_size),
+      legend.title = element_blank(),
+      axis.title=element_text(size=text_size)
+    ) + scale_color_manual(values=c("red", "deepskyblue2") )+
+    ggplot2::ggtitle("EmptyDropsMultiome on simulated data")+
+    guides(colour = guide_legend(override.aes = list(size=5)))
+  
+  fig2c_cR <- fig2c_cR + geom_abline(data = lines, aes(intercept=intercept, slope=slope, linetype=name))    
+    
+    
+    
+    
+    
     
   # figure 2d
   hard_cut <- log10(eD.out_multi$Total_RNA + 1) - eD_meta$k_means_slope * log10(eD.out_multi$Total_chromatin+1)
@@ -258,8 +294,19 @@ for (i in seq_along(eD_out) ) {
   
   
   dev.off()
-  ffile <- file.path(opath, paste0(stub, "_fig2.jpeg"))  
+  ffile <- file.path(opath, paste0(stub, "_fig2_very_small_cells.jpeg"))  
   ggsave(ffile, plot = figure, width=7.2, height=6.0, units="in")
+    
+    
+  
+  ffile <- file.path(opath, paste0(stub, "_fig2A.pdf"))  
+  ggsave(ffile, plot = fig2a, width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig2B.pdf"))  
+  ggsave(ffile, plot = fig2c, width=7.2, height=6.7, units="in")
+  ffile <- file.path(opath, paste0(stub, "_fig2C.pdf"))  
+  ggsave(ffile, plot = fig2d, width=7.2, height=6.7, units="in")
+    
+    
   
 }
 
