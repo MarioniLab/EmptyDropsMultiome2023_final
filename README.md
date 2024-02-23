@@ -24,7 +24,7 @@ Run:
 After the simulations are complete, create the figures for the simulations by running:
 
 - `bash simulations/bsub_figure2_monocytes.sh`
-- `bash simulations/bsub_figure2.sh`
+- `bash simulations/bsub_figure2_3panels.sh`
 
 ## Real data using EmptyDropsMultiome
 
