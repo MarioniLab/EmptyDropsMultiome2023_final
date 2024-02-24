@@ -199,6 +199,7 @@ for (i in seq_along(eD_out) ) {
   fig2c <- fig2c + geom_abline(data = lines, aes(intercept=intercept, slope=slope, linetype=name))
     
 
+  print("let's make figure 2c_cR")  
     
   # figure 2c_cR
 
@@ -228,12 +229,14 @@ for (i in seq_along(eD_out) ) {
     ggplot2::ggtitle("EmptyDropsMultiome on simulated data")+
     guides(colour = guide_legend(override.aes = list(size=5)))
   
-  fig2c_cR <- fig2c_cR + geom_abline(data = lines, aes(intercept=intercept, slope=slope, linetype=name))    
+  #fig2c_cR <- fig2c_cR + geom_abline(data = lines, aes(intercept=intercept, slope=slope, linetype=name))    
+  fig2c_cR <- fig2c_cR + geom_abline(intercept=eD_meta$k_means_intercept, slope=eD_meta$k_means_slope)    
     
     
     
     
-    
+  print("let's make figure 2d")  
+  
     
   # figure 2d
   hard_cut <- log10(eD.out_multi$Total_RNA + 1) - eD_meta$k_means_slope * log10(eD.out_multi$Total_chromatin+1)
@@ -305,6 +308,9 @@ for (i in seq_along(eD_out) ) {
   ggsave(ffile, plot = fig2c, width=7.2, height=6.7, units="in")
   ffile <- file.path(opath, paste0(stub, "_fig2C.pdf"))  
   ggsave(ffile, plot = fig2d, width=7.2, height=6.7, units="in")
+#   print("let's save  fig2c_cR")
+#   ffile <- file.path(opath, paste0(stub, "_fig2c_cR.pdf"))  
+#   ggsave(ffile, plot = fig2c_cR, width=7.2, height=6.7, units="in")
     
     
   
